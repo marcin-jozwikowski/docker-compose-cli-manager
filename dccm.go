@@ -1,7 +1,8 @@
 package main
 
 import (
-	docker_compose_manager "docker-compose-manager/src/docker-compose-manager"
+	"docker-compose-manager/src/command"
+	dcm "docker-compose-manager/src/docker-compose-manager"
 	"fmt"
 	"os"
 )
@@ -12,15 +13,23 @@ func main() {
 		fmt.Println(cfpError)
 		os.Exit(1)
 	}
-	cError := docker_compose_manager.ReadConfigFile(configFilePath)
+	cError := dcm.ReadConfigFile(configFilePath)
 	if cError != nil {
 		fmt.Println(cError)
 		os.Exit(1)
 	}
 
-	cf, _ := docker_compose_manager.GetConfigFile()
+	cmdErr := command.RootCommand.Execute()
+	if cmdErr != nil {
+		panic(cmdErr)
+	}
 
-	fmt.Printf("%v \n", cf)
+	cFile, _ := dcm.GetConfigFile()
+	cWriteError := cFile.WriteToFile(configFilePath)
+	if cWriteError != nil {
+		fmt.Println(cWriteError)
+		os.Exit(1)
+	}
 }
 
 func getConfigFilePath() (string, error) {

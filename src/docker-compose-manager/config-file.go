@@ -78,3 +78,12 @@ func (configuration *ConfigFile) WriteToFile(filename string) error {
 		return nil
 	}
 }
+
+func (configuration *ConfigFile) AddDockerComposeFile(file, project string) error {
+	dcFile := dockerComposeFile.Init(file)
+	if project != "" {
+		dcFile.ProjectName = project
+	}
+	configuration.DockerFiles = append(configuration.DockerFiles, dcFile)
+	return nil
+}

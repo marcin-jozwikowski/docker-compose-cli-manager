@@ -1,5 +1,11 @@
 package docker_compose_file
 
+import (
+	"path/filepath"
+)
+
+const defaultDockerFileName = "docker-compose.yml"
+
 type DockerComposeFileStatus uint8
 
 const (
@@ -11,10 +17,16 @@ const (
 )
 
 type DockerComposeFile struct {
-	FileName string
-	Status   DockerComposeFileStatus
+	FileName    string
+	ProjectName string
+	Status      DockerComposeFileStatus
 }
 
 func Init(fileName string) DockerComposeFile {
-	return DockerComposeFile{FileName: fileName, Status: DcfStatusUnknown}
+	project := filepath.Base(filepath.Dir(fileName))
+	return DockerComposeFile{
+		FileName:    fileName,
+		ProjectName: project,
+		Status:      DcfStatusUnknown,
+	}
 }
