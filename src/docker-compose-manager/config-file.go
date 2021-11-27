@@ -1,7 +1,7 @@
 package docker_compose_manager
 
 import (
-	dockerComposeFile "docker-compose-manager/src/docker-compose-file"
+	dcf "docker-compose-manager/src/docker-compose-file"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -9,8 +9,8 @@ import (
 )
 
 type ConfigFile struct {
-	Settings    Settings                              `json:"settings"`
-	DockerFiles []dockerComposeFile.DockerComposeFile `json:"docker_files"`
+	Settings    Settings                `json:"settings"`
+	DockerFiles []dcf.DockerComposeFile `json:"docker_files"`
 }
 
 var runtimeConfig *ConfigFile
@@ -80,10 +80,22 @@ func (configuration *ConfigFile) WriteToFile(filename string) error {
 }
 
 func (configuration *ConfigFile) AddDockerComposeFile(file, project string) error {
-	dcFile := dockerComposeFile.Init(file)
+	dcFile := dcf.Init(file)
 	if project != "" {
 		dcFile.ProjectName = project
 	}
 	configuration.DockerFiles = append(configuration.DockerFiles, dcFile)
 	return nil
+}
+
+func (configuration *ConfigFile) GetDockerComposeFilesByPath(path string) []*dcf.DockerComposeFile {
+	var result []*dcf.DockerComposeFile
+
+	for _, oneDcFile := range configuration.DockerFiles {
+		if oneDcFile.FileName == path {
+			result = append(result, &oneDcFile)
+		}
+	}
+
+	return result
 }
