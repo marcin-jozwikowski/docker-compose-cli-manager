@@ -2,9 +2,8 @@ package docker_compose_manager
 
 import (
 	dcf "docker-compose-manager/src/docker-compose-file"
+	"docker-compose-manager/src/system"
 	"fmt"
-	"os"
-	"os/exec"
 )
 
 func DockerComposeUp(files []*dcf.DockerComposeFile) {
@@ -16,16 +15,10 @@ func runCommand(command string, files []*dcf.DockerComposeFile, arguments []stri
 	args = append(args, command)
 	args = append(args, arguments...)
 
-	cmd := exec.Command("docker-compose", args...)
-
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err := cmd.Run(); err != nil {
-		fmt.Println("Error: ", err)
+	err := system.RunCommand("docker-compose", args)
+	if err != nil {
+		fmt.Println(err)
 	}
-
 }
 
 func filesToArgs(files []*dcf.DockerComposeFile) []string {

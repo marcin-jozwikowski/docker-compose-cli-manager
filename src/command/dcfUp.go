@@ -12,24 +12,36 @@ var dfcUpCommand = &cobra.Command{
 	Use:   "up [project-name]",
 	Short: "Creates docker-compose set",
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
+		var dcFiles []*dcf.DockerComposeFile
+		cFile, _ := dcm.GetConfigFile()
+
+		switch len(args) {
+		case 0:
 			dcFilePath, err := dcf.LocateFileInCurrentDirectory()
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(2)
 			}
-			cFile, _ := dcm.GetConfigFile()
-			dcFiles := cFile.GetDockerComposeFilesByPath(dcFilePath)
+			dcFiles = cFile.GetDockerComposeFilesByPath(dcFilePath)
+			break
 
-			if len(dcFiles) == 0 {
-				fmt.Printf("File %s was not found in saved projects. Add it first", dcFilePath)
-				os.Exit(2)
-			}
-			dcm.DockerComposeUp(dcFiles)
+		case 1:
+			dcFiles = cFile.GetDockerComposeFilesByProject(args[0])
+			break
+
+		default:
+			fmt.Println("Provide only one project name")
+			os.Exit(2)
 		}
+
+		if len(dcFiles) == 0 {
+			fmt.Println("No files to execute. Were all added to existing projects?")
+			os.Exit(2)
+		}
+		dcm.DockerComposeUp(dcFiles)
 	},
 }
 
-func init()  {
+func init() {
 	RootCommand.AddCommand(dfcUpCommand)
 }
