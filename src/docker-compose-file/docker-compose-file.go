@@ -2,6 +2,7 @@ package docker_compose_file
 
 import (
 	"path/filepath"
+	"strings"
 )
 
 const defaultDockerFileName = "docker-compose.yml"
@@ -38,6 +39,10 @@ func IsFileNameEqual(file *DockerComposeFile, value string) bool {
 
 func IsProjectEqual(file *DockerComposeFile, value string) bool {
 	return file.ProjectName == value
+}
+
+func IsProjectBeginsWith(file *DockerComposeFile, value string) bool {
+	return strings.HasPrefix(file.ProjectName, value)
 }
 
 func (dcf *DockerComposeFile) Filter(filerFunction func(file *DockerComposeFile, value string) bool, fieldValue string) bool {

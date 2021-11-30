@@ -12,6 +12,7 @@ var dfcDownCommand = &cobra.Command{
 		dcFiles := getDcFilesFromCommandArguments(args)
 		dcm.DockerComposeDown(dcFiles)
 	},
+	ValidArgsFunction: projectNamesAutocompletion,
 }
 
 func init() {

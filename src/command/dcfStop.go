@@ -12,6 +12,7 @@ var dfcStopCommand = &cobra.Command{
 		dcFiles := getDcFilesFromCommandArguments(args)
 		dcm.DockerComposeStop(dcFiles)
 	},
+	ValidArgsFunction: projectNamesAutocompletion,
 }
 
 func init() {

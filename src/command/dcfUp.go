@@ -12,6 +12,7 @@ var dfcUpCommand = &cobra.Command{
 		dcFiles := getDcFilesFromCommandArguments(args)
 		dcm.DockerComposeUp(dcFiles)
 	},
+	ValidArgsFunction: projectNamesAutocompletion,
 }
 
 func init() {

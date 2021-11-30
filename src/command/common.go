@@ -4,11 +4,12 @@ import (
 	dcf "docker-compose-manager/src/docker-compose-file"
 	dcm "docker-compose-manager/src/docker-compose-manager"
 	"fmt"
+	"github.com/spf13/cobra"
 	"os"
 )
 
-func getDcFilesFromCommandArguments(args []string) []*dcf.DockerComposeFile {
-	var dcFiles []*dcf.DockerComposeFile
+func getDcFilesFromCommandArguments(args []string) []dcf.DockerComposeFile {
+	var dcFiles []dcf.DockerComposeFile
 	cFile, _ := dcm.GetConfigFile()
 
 	switch len(args) {
@@ -36,4 +37,12 @@ func getDcFilesFromCommandArguments(args []string) []*dcf.DockerComposeFile {
 	}
 
 	return dcFiles
+}
+
+func projectNamesAutocompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	if len(args) != 0 {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+	cFile, _ := dcm.GetConfigFile()
+	return cFile.GetDockerComposeProjectList(toComplete), cobra.ShellCompDirectiveNoFileComp
 }

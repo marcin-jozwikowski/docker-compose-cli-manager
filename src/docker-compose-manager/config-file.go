@@ -88,20 +88,34 @@ func (configuration *ConfigFile) AddDockerComposeFile(file, project string) erro
 	return nil
 }
 
-func (configuration *ConfigFile) filterDockerComposeFiles(filterFunction dcf.DockerComposeFileFilteringFunction, fieldValue string) []*dcf.DockerComposeFile {
-	var result []*dcf.DockerComposeFile
+func (configuration *ConfigFile) filterDockerComposeFiles(filterFunction dcf.DockerComposeFileFilteringFunction, fieldValue string) []dcf.DockerComposeFile {
+	var result []dcf.DockerComposeFile
 	for _, oneDcFile := range configuration.DockerFiles {
 		if filterFunction(&oneDcFile, fieldValue) {
-			result = append(result, &oneDcFile)
+			result = append(result, oneDcFile)
 		}
 	}
 	return result
 }
 
-func (configuration *ConfigFile) GetDockerComposeFilesByPath(path string) []*dcf.DockerComposeFile {
+func (configuration *ConfigFile) GetDockerComposeFilesByPath(path string) []dcf.DockerComposeFile {
 	return configuration.filterDockerComposeFiles(dcf.IsFileNameEqual, path)
 }
 
-func (configuration *ConfigFile) GetDockerComposeFilesByProject(projectName string) []*dcf.DockerComposeFile {
+func (configuration *ConfigFile) GetDockerComposeFilesByProject(projectName string) []dcf.DockerComposeFile {
 	return configuration.filterDockerComposeFiles(dcf.IsProjectEqual, projectName)
+}
+
+func (configuration *ConfigFile) GetDockerComposeProjectList(projectNamePrefix string) []string {
+	usedMap := make(map[string]bool)
+	var result []string
+
+	matching := configuration.filterDockerComposeFiles(dcf.IsProjectBeginsWith, projectNamePrefix)
+	for _, file := range matching {
+		if _, used := usedMap[file.ProjectName]; !used {
+			usedMap[file.ProjectName] = true
+			result = append(result, file.ProjectName)
+		}
+	}
+	return result
 }
