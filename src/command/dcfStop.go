@@ -5,15 +5,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var dfcUpCommand = &cobra.Command{
-	Use:   "up [project-name]",
-	Short: "Creates docker-compose set",
+var dfcStopCommand = &cobra.Command{
+	Use:   "stop [project-name]",
+	Short: "Stops docker-compose set",
 	Run: func(cmd *cobra.Command, args []string) {
 		dcFiles := getDcFilesFromCommandArguments(args)
-		dcm.DockerComposeUp(dcFiles)
+		dcm.DockerComposeStop(dcFiles)
 	},
 }
 
 func init() {
-	RootCommand.AddCommand(dfcUpCommand)
+	RootCommand.AddCommand(dfcStopCommand)
 }

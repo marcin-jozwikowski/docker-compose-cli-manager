@@ -10,6 +10,18 @@ func DockerComposeUp(files []*dcf.DockerComposeFile) {
 	runCommand("up", files, []string{"-d"})
 }
 
+func DockerComposeStart(files []*dcf.DockerComposeFile) {
+	runCommand("start", files, []string{})
+}
+
+func DockerComposeStop(files []*dcf.DockerComposeFile) {
+	runCommand("stop", files, []string{})
+}
+
+func DockerComposeDown(files []*dcf.DockerComposeFile) {
+	runCommand("down", files, []string{"--remove-orphans", "--volumes"})
+}
+
 func runCommand(command string, files []*dcf.DockerComposeFile, arguments []string) {
 	args := filesToArgs(files)
 	args = append(args, command)
