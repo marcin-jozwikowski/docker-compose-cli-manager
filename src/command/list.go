@@ -12,12 +12,15 @@ var listCommand = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cFile, _ := dcm.GetConfigFile()
 		fmt.Println("Docker-compose files saved:")
-		for _, file := range cFile.DockerFiles {
-			fmt.Printf("\t%s --> %s\n", file.ProjectName, file.FileName)
+		for projectName, files := range cFile.Projects {
+			fmt.Printf("\t %s \n", projectName)
+			for _, oneFile := range files {
+				fmt.Printf("\t\t --> %s", oneFile.FileName)
+			}
 		}
 	},
 }
 
-func init()  {
+func init() {
 	RootCommand.AddCommand(listCommand)
 }

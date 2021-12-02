@@ -19,7 +19,7 @@ func getDcFilesFromCommandArguments(args []string) []dcf.DockerComposeFile {
 			fmt.Println(err)
 			os.Exit(2)
 		}
-		dcFiles = cFile.GetDockerComposeFilesByPath(dcFilePath)
+		dcFiles = append(dcFiles, dcf.Init(dcFilePath))
 		break
 
 	case 1:

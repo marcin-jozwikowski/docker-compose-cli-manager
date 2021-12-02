@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 type ConfigFile struct {
-	Settings    Settings                `json:"settings"`
-	DockerFiles []dcf.DockerComposeFile `json:"docker_files"`
+	Settings Settings                           `json:"settings"`
+	Projects map[string][]dcf.DockerComposeFile `json:"projects"`
 }
 
 var runtimeConfig *ConfigFile
@@ -79,43 +81,40 @@ func (configuration *ConfigFile) WriteToFile(filename string) error {
 	}
 }
 
-func (configuration *ConfigFile) AddDockerComposeFile(file, project string) error {
-	dcFile := dcf.Init(file)
-	if project != "" {
-		dcFile.ProjectName = project
+func (configuration *ConfigFile) AddDockerComposeFile(file, projectName string) error {
+	if configuration.Projects == nil {
+		configuration.Projects = map[string][]dcf.DockerComposeFile{}
 	}
-	configuration.DockerFiles = append(configuration.DockerFiles, dcFile)
+	if projectName == "" {
+		projectName = filepath.Base(filepath.Dir(file))
+	}
+	dcFile := dcf.Init(file)
+	var project []dcf.DockerComposeFile
+	var exists bool
+
+	project, exists = configuration.Projects[projectName]
+	if !exists {
+		project = []dcf.DockerComposeFile{dcFile}
+	} else {
+		project = append(project, dcFile)
+	}
+
+	configuration.Projects[projectName] = project
 	return nil
 }
 
-func (configuration *ConfigFile) filterDockerComposeFiles(filterFunction dcf.DockerComposeFileFilteringFunction, fieldValue string) []dcf.DockerComposeFile {
-	var result []dcf.DockerComposeFile
-	for _, oneDcFile := range configuration.DockerFiles {
-		if filterFunction(&oneDcFile, fieldValue) {
-			result = append(result, oneDcFile)
-		}
-	}
-	return result
-}
-
-func (configuration *ConfigFile) GetDockerComposeFilesByPath(path string) []dcf.DockerComposeFile {
-	return configuration.filterDockerComposeFiles(dcf.IsFileNameEqual, path)
-}
-
 func (configuration *ConfigFile) GetDockerComposeFilesByProject(projectName string) []dcf.DockerComposeFile {
-	return configuration.filterDockerComposeFiles(dcf.IsProjectEqual, projectName)
+	return configuration.Projects[projectName]
 }
 
 func (configuration *ConfigFile) GetDockerComposeProjectList(projectNamePrefix string) []string {
-	usedMap := make(map[string]bool)
 	var result []string
 
-	matching := configuration.filterDockerComposeFiles(dcf.IsProjectBeginsWith, projectNamePrefix)
-	for _, file := range matching {
-		if _, used := usedMap[file.ProjectName]; !used {
-			usedMap[file.ProjectName] = true
-			result = append(result, file.ProjectName)
+	for projectName, _ := range configuration.Projects {
+		if strings.HasPrefix(projectName, projectNamePrefix) {
+			result = append(result, projectName)
 		}
 	}
+
 	return result
 }
