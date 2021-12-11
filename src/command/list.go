@@ -15,7 +15,7 @@ var listCommand = &cobra.Command{
 		for projectName, files := range cFile.Projects {
 			fmt.Printf("\t %s \n", projectName)
 			for _, oneFile := range files {
-				fmt.Printf("\t\t --> %s", oneFile.FileName)
+				fmt.Printf("\t\t --> %s\n", oneFile.FileName)
 			}
 		}
 	},
