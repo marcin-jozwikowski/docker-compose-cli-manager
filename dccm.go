@@ -44,7 +44,7 @@ func getConfigFilePath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	filePathDir := dirname + string(os.PathSeparator) + ".docker-compose-manager"
+	filePathDir := dirname + string(os.PathSeparator) + ".dccm"
 	err = os.MkdirAll(filePathDir, 0755)
 	if err != nil {
 		return "", err
