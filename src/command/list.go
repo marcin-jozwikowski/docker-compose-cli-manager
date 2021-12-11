@@ -4,6 +4,7 @@ import (
 	dcm "docker-compose-manager/src/docker-compose-manager"
 	"fmt"
 	"github.com/spf13/cobra"
+	"sort"
 )
 
 var listCommand = &cobra.Command{
@@ -12,9 +13,16 @@ var listCommand = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cFile, _ := dcm.GetConfigFile()
 		fmt.Println("Docker-compose files saved:")
-		for projectName, files := range cFile.Projects {
+
+		keys := make([]string, 0, len(cFile.Projects))
+		for projectName, _ := range cFile.Projects {
+			keys = append(keys, projectName)
+		}
+		sort.Strings(keys)
+
+		for _, projectName := range keys {
 			fmt.Printf("\t %s \n", projectName)
-			for _, oneFile := range files {
+			for _, oneFile := range cFile.Projects[projectName] {
 				fmt.Printf("\t\t --> %s\n", oneFile.FileName)
 			}
 		}
