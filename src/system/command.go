@@ -14,3 +14,9 @@ func RunCommand(command string, args []string) error {
 
 	return cmd.Run()
 }
+
+func RunCommandForResult(command string, args []string) ([]byte, error) {
+	cmd := exec.Command(command, args...)
+
+	return cmd.Output()
+}

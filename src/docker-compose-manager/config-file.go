@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -110,7 +111,13 @@ func (configuration *ConfigFile) GetDockerComposeFilesByProject(projectName stri
 func (configuration *ConfigFile) GetDockerComposeProjectList(projectNamePrefix string) []string {
 	var result []string
 
+	projects := make([]string, 0, len(configuration.Projects))
 	for projectName, _ := range configuration.Projects {
+		projects = append(projects, projectName)
+	}
+	sort.Strings(projects)
+
+	for _, projectName := range projects {
 		if strings.HasPrefix(projectName, projectNamePrefix) {
 			result = append(result, projectName)
 		}
