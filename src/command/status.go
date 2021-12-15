@@ -5,19 +5,26 @@ import (
 	dcm "docker-compose-manager/src/docker-compose-manager"
 	"fmt"
 	"github.com/spf13/cobra"
+	"math"
+	"strings"
 )
 
 var statusCommand = &cobra.Command{
 	Use:   "status [project name]",
 	Short: "Gets a status of docker-compose project(s)",
-	Long: "Gets a status of docker-compose projects when no name is provided. Otherwise only status of one project is provided",
+	Long:  "Gets a status of docker-compose projects when no name is provided. Otherwise only status of one project is provided",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			cFile, _ := dcm.GetConfigFile()
 			projectList := cFile.GetDockerComposeProjectList("")
+			maxProjectNameLength := 0
+			for _, project := range projectList {
+				maxProjectNameLength = int(math.Max(float64(maxProjectNameLength), float64(len(project))))
+			}
 			for _, project := range projectList {
 				projectFiles := cFile.Projects[project]
-				fmt.Printf("\t %s --> %s \n", project, getProjectStatusString(projectFiles))
+				fillingSuffix := strings.Repeat(" ", maxProjectNameLength-len(project))
+				fmt.Printf("\t %s --> %s \n", project+fillingSuffix, getProjectStatusString(projectFiles))
 			}
 		} else {
 			projectFiles := getDcFilesFromCommandArguments(args)
@@ -33,7 +40,7 @@ func getProjectStatusString(project []dcf.DockerComposeFile) string {
 	case dcf.DcfStatusNew:
 		return "New"
 	case dcf.DcfStatusRunning:
-		return "Up and running"
+		return "Running"
 	case dcf.DcfStatusMixed:
 		return "Partially running"
 	case dcf.DcfStatusStopped:
