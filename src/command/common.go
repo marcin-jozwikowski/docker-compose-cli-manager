@@ -14,7 +14,7 @@ func getDcFilesFromCommandArguments(args []string) []dcf.DockerComposeFile {
 
 	switch len(args) {
 	case 0:
-		dcFilePath, err := dcf.LocateFileInCurrentDirectory()
+		dcFilePath, err := dcm.LocateFileInCurrentDirectory()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(2)

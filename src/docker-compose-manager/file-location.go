@@ -1,15 +1,16 @@
-package docker_compose_file
+package docker_compose_manager
 
 import (
-	"docker-compose-manager/src/system"
 	"fmt"
 	"os"
 )
 
+const DefaultDockerFileName = "docker-compose.yml"
+
 func LocateFileInDirectory(dir string) (string, error) {
 	// Generate docker-compose.yml path
-	dcFilePath := dir + string(os.PathSeparator) + defaultDockerFileName
-	if system.IsFile(dcFilePath) {
+	dcFilePath := dir + string(os.PathSeparator) + DefaultDockerFileName
+	if fileInfoProvider.IsFile(dcFilePath) {
 		return dcFilePath, nil
 	}
 

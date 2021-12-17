@@ -1,22 +1,33 @@
 package system
 
-import (
-	"os"
-	"os/exec"
-)
+type executableCommand interface {
+	Run() error
+	Output() ([]byte, error)
+}
 
-func RunCommand(command string, args []string) error {
-	cmd := exec.Command(command, args...)
+type CommandExecutionerInterface interface {
+	RunCommand(command string, args []string) error
+	RunCommandForResult(command string, args []string) ([]byte, error)
+}
 
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+type defaultCommandExecutioner struct {
+	builder commandBuilderInterface
+}
+
+func InitCommandExecutioner(builder commandBuilderInterface) CommandExecutionerInterface {
+	return defaultCommandExecutioner{
+		builder: builder,
+	}
+}
+
+func (c defaultCommandExecutioner) RunCommand(command string, args []string) error {
+	cmd := c.builder.buildInteractiveCommand(command, args)
 
 	return cmd.Run()
 }
 
-func RunCommandForResult(command string, args []string) ([]byte, error) {
-	cmd := exec.Command(command, args...)
+func (c defaultCommandExecutioner) RunCommandForResult(command string, args []string) ([]byte, error) {
+	cmd := c.builder.buildCommand(command, args)
 
 	return cmd.Output()
 }

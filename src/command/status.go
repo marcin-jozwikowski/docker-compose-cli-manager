@@ -35,7 +35,8 @@ var statusCommand = &cobra.Command{
 }
 
 func getProjectStatusString(project []dcf.DockerComposeFile) string {
-	status := dcm.DockerComposeStatus(project)
+	d := dcm.DockerComposeManager{}
+	status := d.DockerComposeStatus(project)
 	switch status {
 	case dcf.DcfStatusNew:
 		return "New"

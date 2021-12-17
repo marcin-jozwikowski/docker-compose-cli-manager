@@ -10,24 +10,37 @@ import (
 	"strings"
 )
 
-func DockerComposeUp(files []dcf.DockerComposeFile) {
-	runCommand("up", files, []string{"-d"})
+var commandRunner system.CommandExecutionerInterface
+var fileInfoProvider system.FileInfoProviderInterface
+
+func init() {
+	commandRunner = system.InitCommandExecutioner(system.DefaultCommandBuilder{
+		IoIn:  os.Stdin,
+		IoOut: os.Stdout,
+		IoErr: os.Stderr,
+	})
+
+	fileInfoProvider = system.InitFileInfoProvider(system.DefaultOSInfoProvider{})
 }
 
-func DockerComposeStart(files []dcf.DockerComposeFile) {
-	runCommand("start", files, []string{})
+func (d DockerComposeManager) DockerComposeUp(files []dcf.DockerComposeFile) {
+	d.runCommand("up", files, []string{"-d"})
 }
 
-func DockerComposeStop(files []dcf.DockerComposeFile) {
-	runCommand("stop", files, []string{})
+func (d DockerComposeManager) DockerComposeStart(files []dcf.DockerComposeFile) {
+	d.runCommand("start", files, []string{})
 }
 
-func DockerComposeDown(files []dcf.DockerComposeFile) {
-	runCommand("down", files, []string{"--remove-orphans", "--volumes"})
+func (d DockerComposeManager) DockerComposeStop(files []dcf.DockerComposeFile) {
+	d.runCommand("stop", files, []string{})
 }
 
-func DockerComposeStatus(files []dcf.DockerComposeFile) dcf.DockerComposeFileStatus {
-	total, running := getRunningServicesCount(files)
+func (d DockerComposeManager) DockerComposeDown(files []dcf.DockerComposeFile) {
+	d.runCommand("down", files, []string{"--remove-orphans", "--volumes"})
+}
+
+func (d DockerComposeManager) DockerComposeStatus(files []dcf.DockerComposeFile) dcf.DockerComposeFileStatus {
+	total, running := d.getRunningServicesCount(files)
 
 	if total == 0 {
 		return dcf.DcfStatusNew
@@ -42,8 +55,8 @@ func DockerComposeStatus(files []dcf.DockerComposeFile) dcf.DockerComposeFileSta
 	}
 }
 
-func getRunningServicesCount(files []dcf.DockerComposeFile) (int, int) {
-	result := runCommandForResult("ps", files, []string{})
+func (d DockerComposeManager) getRunningServicesCount(files []dcf.DockerComposeFile) (int, int) {
+	result := d.runCommandForResult("ps", files, []string{})
 	bytesReader := bytes.NewReader(result)
 	bufReader := bufio.NewReader(bytesReader)
 	_, _, _ = bufReader.ReadLine()
@@ -73,25 +86,25 @@ func getRunningServicesCount(files []dcf.DockerComposeFile) (int, int) {
 	return totalCount, upCount
 }
 
-func runCommand(command string, files []dcf.DockerComposeFile, arguments []string) {
-	args := generateCommandArgs(command, files, arguments)
-	err := system.RunCommand("docker-compose", args)
+func (d DockerComposeManager) runCommand(command string, files []dcf.DockerComposeFile, arguments []string) {
+	args := d.generateCommandArgs(command, files, arguments)
+	err := commandRunner.RunCommand("docker-compose", args)
 	if err != nil {
 		fmt.Println(err)
 	}
 }
 
-func generateCommandArgs(command string, files []dcf.DockerComposeFile, arguments []string) []string {
-	args := filesToArgs(files)
+func (d DockerComposeManager) generateCommandArgs(command string, files []dcf.DockerComposeFile, arguments []string) []string {
+	args := d.filesToArgs(files)
 	args = append(args, command)
 	args = append(args, arguments...)
 
 	return args
 }
 
-func runCommandForResult(command string, files []dcf.DockerComposeFile, arguments []string) []byte {
-	args := generateCommandArgs(command, files, arguments)
-	resultBytes, err := system.RunCommandForResult("docker-compose", args)
+func (d DockerComposeManager) runCommandForResult(command string, files []dcf.DockerComposeFile, arguments []string) []byte {
+	args := d.generateCommandArgs(command, files, arguments)
+	resultBytes, err := commandRunner.RunCommandForResult("docker-compose", args)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -100,7 +113,7 @@ func runCommandForResult(command string, files []dcf.DockerComposeFile, argument
 	return resultBytes
 }
 
-func filesToArgs(files []dcf.DockerComposeFile) []string {
+func (d DockerComposeManager) filesToArgs(files []dcf.DockerComposeFile) []string {
 	var result []string
 	for _, file := range files {
 		result = append(result, "-f")

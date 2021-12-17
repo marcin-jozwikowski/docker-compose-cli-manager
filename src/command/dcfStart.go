@@ -9,8 +9,9 @@ var dfcStartCommand = &cobra.Command{
 	Use:   "start [project-name]",
 	Short: "Starts docker-compose set",
 	Run: func(cmd *cobra.Command, args []string) {
+		d := dcm.DockerComposeManager{}
 		dcFiles := getDcFilesFromCommandArguments(args)
-		dcm.DockerComposeStart(dcFiles)
+		d.DockerComposeStart(dcFiles)
 	},
 	ValidArgsFunction: projectNamesAutocompletion,
 }
