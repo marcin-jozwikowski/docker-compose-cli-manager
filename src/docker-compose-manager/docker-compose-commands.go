@@ -13,33 +13,23 @@ import (
 var commandRunner system.CommandExecutionerInterface
 var fileInfoProvider system.FileInfoProviderInterface
 
-func init() {
-	commandRunner = system.InitCommandExecutioner(system.DefaultCommandBuilder{
-		IoIn:  os.Stdin,
-		IoOut: os.Stdout,
-		IoErr: os.Stderr,
-	})
-
-	fileInfoProvider = system.InitFileInfoProvider(system.DefaultOSInfoProvider{})
-}
-
-func (d DockerComposeManager) DockerComposeUp(files []dcf.DockerComposeFile) {
+func (d *DockerComposeManager) DockerComposeUp(files []dcf.DockerComposeFile) {
 	d.runCommand("up", files, []string{"-d"})
 }
 
-func (d DockerComposeManager) DockerComposeStart(files []dcf.DockerComposeFile) {
+func (d *DockerComposeManager) DockerComposeStart(files []dcf.DockerComposeFile) {
 	d.runCommand("start", files, []string{})
 }
 
-func (d DockerComposeManager) DockerComposeStop(files []dcf.DockerComposeFile) {
+func (d *DockerComposeManager) DockerComposeStop(files []dcf.DockerComposeFile) {
 	d.runCommand("stop", files, []string{})
 }
 
-func (d DockerComposeManager) DockerComposeDown(files []dcf.DockerComposeFile) {
+func (d *DockerComposeManager) DockerComposeDown(files []dcf.DockerComposeFile) {
 	d.runCommand("down", files, []string{"--remove-orphans", "--volumes"})
 }
 
-func (d DockerComposeManager) DockerComposeStatus(files []dcf.DockerComposeFile) dcf.DockerComposeFileStatus {
+func (d *DockerComposeManager) DockerComposeStatus(files []dcf.DockerComposeFile) dcf.DockerComposeFileStatus {
 	total, running := d.getRunningServicesCount(files)
 
 	if total == 0 {
@@ -55,7 +45,7 @@ func (d DockerComposeManager) DockerComposeStatus(files []dcf.DockerComposeFile)
 	}
 }
 
-func (d DockerComposeManager) getRunningServicesCount(files []dcf.DockerComposeFile) (int, int) {
+func (d *DockerComposeManager) getRunningServicesCount(files []dcf.DockerComposeFile) (int, int) {
 	result := d.runCommandForResult("ps", files, []string{})
 	bytesReader := bytes.NewReader(result)
 	bufReader := bufio.NewReader(bytesReader)
@@ -86,7 +76,7 @@ func (d DockerComposeManager) getRunningServicesCount(files []dcf.DockerComposeF
 	return totalCount, upCount
 }
 
-func (d DockerComposeManager) runCommand(command string, files []dcf.DockerComposeFile, arguments []string) {
+func (d *DockerComposeManager) runCommand(command string, files []dcf.DockerComposeFile, arguments []string) {
 	args := d.generateCommandArgs(command, files, arguments)
 	err := commandRunner.RunCommand("docker-compose", args)
 	if err != nil {
@@ -94,7 +84,7 @@ func (d DockerComposeManager) runCommand(command string, files []dcf.DockerCompo
 	}
 }
 
-func (d DockerComposeManager) generateCommandArgs(command string, files []dcf.DockerComposeFile, arguments []string) []string {
+func (d *DockerComposeManager) generateCommandArgs(command string, files []dcf.DockerComposeFile, arguments []string) []string {
 	args := d.filesToArgs(files)
 	args = append(args, command)
 	args = append(args, arguments...)
@@ -102,7 +92,7 @@ func (d DockerComposeManager) generateCommandArgs(command string, files []dcf.Do
 	return args
 }
 
-func (d DockerComposeManager) runCommandForResult(command string, files []dcf.DockerComposeFile, arguments []string) []byte {
+func (d *DockerComposeManager) runCommandForResult(command string, files []dcf.DockerComposeFile, arguments []string) []byte {
 	args := d.generateCommandArgs(command, files, arguments)
 	resultBytes, err := commandRunner.RunCommandForResult("docker-compose", args)
 	if err != nil {
@@ -113,7 +103,7 @@ func (d DockerComposeManager) runCommandForResult(command string, files []dcf.Do
 	return resultBytes
 }
 
-func (d DockerComposeManager) filesToArgs(files []dcf.DockerComposeFile) []string {
+func (d *DockerComposeManager) filesToArgs(files []dcf.DockerComposeFile) []string {
 	var result []string
 	for _, file := range files {
 		result = append(result, "-f")

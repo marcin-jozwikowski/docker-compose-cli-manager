@@ -15,8 +15,8 @@ type FileInfoProvider struct {
 	osInfoProvider OSInfoProviderInterface
 }
 
-func InitFileInfoProvider(providerInterface OSInfoProviderInterface) FileInfoProvider {
-	return FileInfoProvider{osInfoProvider: providerInterface}
+func InitFileInfoProvider(providerInterface OSInfoProviderInterface) FileInfoProviderInterface {
+	return &FileInfoProvider{osInfoProvider: providerInterface}
 }
 
 func (f FileInfoProvider) Expand(path string) string {

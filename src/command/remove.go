@@ -1,7 +1,7 @@
 package command
 
 import (
-	dcm "docker-compose-manager/src/docker-compose-manager"
+	dcm "docker-compose-manager/src/config"
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"

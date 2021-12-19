@@ -1,4 +1,4 @@
-package docker_compose_manager
+package config
 
 import (
 	dcf "docker-compose-manager/src/docker-compose-file"
@@ -11,15 +11,22 @@ import (
 	"strings"
 )
 
-type ConfigFile struct {
+type ConfigurationFileInterface interface {
+	AddDockerComposeFile(file, projectName string) error
+	GetDockerComposeFilesByProject(projectName string) []dcf.DockerComposeFile
+	GetDockerComposeProjectList(projectNamePrefix string) []string
+	//GetSettings() docker_compose_manager.Settings
+}
+
+type ConfigurationFile struct {
 	Settings Settings                           `json:"settings"`
 	Projects map[string][]dcf.DockerComposeFile `json:"projects"`
 }
 
-var runtimeConfig *ConfigFile
+var runtimeConfig *ConfigurationFile
 
-func initializeConfigFile() ConfigFile {
-	return ConfigFile{
+func initializeConfigFile() ConfigurationFile {
+	return ConfigurationFile{
 		Settings: Settings{},
 	}
 }
@@ -34,36 +41,36 @@ func ReadConfigFile(srcFile string) error {
 	return nil
 }
 
-func GetConfigFile() (*ConfigFile, error) {
+func GetConfigFile() (*ConfigurationFile, error) {
 	if runtimeConfig == nil {
 		return nil, fmt.Errorf("configuration not initialized")
 	}
 	return runtimeConfig, nil
 }
 
-func configFromFile(srcFile string) (ConfigFile, error) {
+func configFromFile(srcFile string) (ConfigurationFile, error) {
 	if _, err := os.Stat(srcFile); err == nil {
 		if config, readErr := fromFile(srcFile); nil == readErr {
 			return config, nil
 		} else {
-			return ConfigFile{}, readErr
+			return ConfigurationFile{}, readErr
 		}
 	} else if os.IsNotExist(err) {
 		newRuntimeConfig := initializeConfigFile()
 		if fileWriteErr := newRuntimeConfig.WriteToFile(srcFile); fileWriteErr != nil {
-			return ConfigFile{}, fileWriteErr
+			return ConfigurationFile{}, fileWriteErr
 		}
 		return newRuntimeConfig, nil
 	} else {
-		return ConfigFile{}, err
+		return ConfigurationFile{}, err
 	}
 }
 
-func fromFile(filename string) (ConfigFile, error) {
+func fromFile(filename string) (ConfigurationFile, error) {
 	if fileContent, fileReadErr := ioutil.ReadFile(filename); fileReadErr != nil {
 		return initializeConfigFile(), fmt.Errorf("error while opening file %v: %v", filename, fileReadErr.Error())
 	} else {
-		var raw ConfigFile
+		var raw ConfigurationFile
 		if jsonErr := json.Unmarshal(fileContent, &raw); jsonErr != nil {
 			return initializeConfigFile(), fmt.Errorf("error while parsing file %v: %v", filename, jsonErr.Error())
 		}
@@ -71,7 +78,7 @@ func fromFile(filename string) (ConfigFile, error) {
 	}
 }
 
-func (configuration *ConfigFile) WriteToFile(filename string) error {
+func (configuration *ConfigurationFile) WriteToFile(filename string) error {
 	if file, err := json.MarshalIndent(configuration, "", " "); err != nil {
 		return fmt.Errorf("error while encoding RuntimeConfig: %v", err.Error())
 	} else {
@@ -82,7 +89,7 @@ func (configuration *ConfigFile) WriteToFile(filename string) error {
 	}
 }
 
-func (configuration *ConfigFile) AddDockerComposeFile(file, projectName string) error {
+func (configuration *ConfigurationFile) AddDockerComposeFile(file, projectName string) error {
 	if configuration.Projects == nil {
 		configuration.Projects = map[string][]dcf.DockerComposeFile{}
 	}
@@ -104,11 +111,11 @@ func (configuration *ConfigFile) AddDockerComposeFile(file, projectName string) 
 	return nil
 }
 
-func (configuration *ConfigFile) GetDockerComposeFilesByProject(projectName string) []dcf.DockerComposeFile {
+func (configuration *ConfigurationFile) GetDockerComposeFilesByProject(projectName string) []dcf.DockerComposeFile {
 	return configuration.Projects[projectName]
 }
 
-func (configuration *ConfigFile) GetDockerComposeProjectList(projectNamePrefix string) []string {
+func (configuration *ConfigurationFile) GetDockerComposeProjectList(projectNamePrefix string) []string {
 	var result []string
 
 	projects := make([]string, 0, len(configuration.Projects))

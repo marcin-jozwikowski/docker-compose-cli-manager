@@ -3,7 +3,9 @@ package main
 import (
 	"bytes"
 	"docker-compose-manager/src/command"
-	dcm "docker-compose-manager/src/docker-compose-manager"
+	"docker-compose-manager/src/config"
+	docker_compose_manager "docker-compose-manager/src/docker-compose-manager"
+	"docker-compose-manager/src/system"
 	"fmt"
 	"github.com/btnguyen2k/consu/checksum"
 	"os"
@@ -15,20 +17,31 @@ func main() {
 		fmt.Println(cfpError)
 		os.Exit(1)
 	}
-	cError := dcm.ReadConfigFile(configFilePath)
+	cError := config.ReadConfigFile(configFilePath)
 	if cError != nil {
 		fmt.Println(cError)
 		os.Exit(1)
 	}
-	cFile, _ := dcm.GetConfigFile()
+	cFile, _ := config.GetConfigFile()
 	cFileChecksum := checksum.Md5Checksum(cFile)
+
+	commandRunner := system.InitCommandExecutioner(system.DefaultCommandBuilder{
+		IoIn:  os.Stdin,
+		IoOut: os.Stdout,
+		IoErr: os.Stderr,
+	})
+
+	fileInfoProvider := system.InitFileInfoProvider(system.DefaultOSInfoProvider{})
+
+	dockerManager := docker_compose_manager.InitDockerComposeManager(cFile, commandRunner, fileInfoProvider)
+	command.InitCommands(dockerManager)
 
 	cmdErr := command.RootCommand.Execute()
 	if cmdErr != nil {
 		panic(cmdErr)
 	}
 
-	cFile, _ = dcm.GetConfigFile()
+	cFile, _ = config.GetConfigFile()
 	if bytes.Compare(checksum.Md5Checksum(cFile), cFileChecksum) != 0 {
 		// write to disk only when cFile struct has changed
 		cWriteError := cFile.WriteToFile(configFilePath)

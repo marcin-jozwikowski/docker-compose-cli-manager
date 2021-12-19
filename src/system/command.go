@@ -15,7 +15,7 @@ type defaultCommandExecutioner struct {
 }
 
 func InitCommandExecutioner(builder commandBuilderInterface) CommandExecutionerInterface {
-	return defaultCommandExecutioner{
+	return &defaultCommandExecutioner{
 		builder: builder,
 	}
 }

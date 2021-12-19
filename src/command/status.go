@@ -1,6 +1,7 @@
 package command
 
 import (
+	"docker-compose-manager/src/config"
 	dcf "docker-compose-manager/src/docker-compose-file"
 	dcm "docker-compose-manager/src/docker-compose-manager"
 	"fmt"
@@ -15,7 +16,7 @@ var statusCommand = &cobra.Command{
 	Long:  "Gets a status of docker-compose projects when no name is provided. Otherwise only status of one project is provided",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			cFile, _ := dcm.GetConfigFile()
+			cFile, _ := config.GetConfigFile()
 			projectList := cFile.GetDockerComposeProjectList("")
 			maxProjectNameLength := 0
 			for _, project := range projectList {

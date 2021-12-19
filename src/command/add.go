@@ -1,6 +1,7 @@
 package command
 
 import (
+	config "docker-compose-manager/src/config"
 	dcm "docker-compose-manager/src/docker-compose-manager"
 	"docker-compose-manager/src/system"
 	"fmt"
@@ -19,7 +20,7 @@ If no file is provided it look for one in current working directory.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		fileInfo := system.InitFileInfoProvider(system.DefaultOSInfoProvider{})
-		config, _ := dcm.GetConfigFile()
+		config, _ := config.GetConfigFile()
 		dcFile, dcErr := dcm.LocateFileInCurrentDirectory()
 		projectName := ""
 

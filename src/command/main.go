@@ -8,9 +8,15 @@ import (
 	"os"
 )
 
+var manager dcm.DockerComposeManagerInterface
+
+func InitCommands(managerInstance dcm.DockerComposeManagerInterface) {
+	manager = managerInstance
+}
+
 func getDcFilesFromCommandArguments(args []string) []dcf.DockerComposeFile {
 	var dcFiles []dcf.DockerComposeFile
-	cFile, _ := dcm.GetConfigFile()
+	cFile, _ := manager.GetConfigFile()
 
 	switch len(args) {
 	case 0:
@@ -43,6 +49,6 @@ func projectNamesAutocompletion(cmd *cobra.Command, args []string, toComplete st
 	if len(args) != 0 {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	}
-	cFile, _ := dcm.GetConfigFile()
+	cFile, _ := manager.GetConfigFile()
 	return cFile.GetDockerComposeProjectList(toComplete), cobra.ShellCompDirectiveNoFileComp
 }
