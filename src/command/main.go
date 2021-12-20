@@ -16,7 +16,6 @@ func InitCommands(managerInstance dcm.DockerComposeManagerInterface) {
 
 func getDcFilesFromCommandArguments(args []string) []dcf.DockerComposeFile {
 	var dcFiles []dcf.DockerComposeFile
-	cFile, _ := manager.GetConfigFile()
 
 	switch len(args) {
 	case 0:
@@ -29,7 +28,7 @@ func getDcFilesFromCommandArguments(args []string) []dcf.DockerComposeFile {
 		break
 
 	case 1:
-		dcFiles = cFile.GetDockerComposeFilesByProject(args[0])
+		dcFiles = manager.GetConfigFile().GetDockerComposeFilesByProject(args[0])
 		break
 
 	default:
@@ -49,6 +48,5 @@ func projectNamesAutocompletion(cmd *cobra.Command, args []string, toComplete st
 	if len(args) != 0 {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	}
-	cFile, _ := manager.GetConfigFile()
-	return cFile.GetDockerComposeProjectList(toComplete), cobra.ShellCompDirectiveNoFileComp
+	return manager.GetConfigFile().GetDockerComposeProjectList(toComplete), cobra.ShellCompDirectiveNoFileComp
 }

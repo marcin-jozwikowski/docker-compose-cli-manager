@@ -17,12 +17,11 @@ func main() {
 		fmt.Println(cfpError)
 		os.Exit(1)
 	}
-	cError := config.ReadConfigFile(configFilePath)
+	cFile, cError := config.ReadConfigFile(configFilePath)
 	if cError != nil {
 		fmt.Println(cError)
 		os.Exit(1)
 	}
-	cFile, _ := config.GetConfigFile()
 	cFileChecksum := checksum.Md5Checksum(cFile)
 
 	commandRunner := system.InitCommandExecutioner(system.DefaultCommandBuilder{
@@ -33,7 +32,7 @@ func main() {
 
 	fileInfoProvider := system.InitFileInfoProvider(system.DefaultOSInfoProvider{})
 
-	dockerManager := docker_compose_manager.InitDockerComposeManager(cFile, commandRunner, fileInfoProvider)
+	dockerManager := docker_compose_manager.InitDockerComposeManager(&cFile, commandRunner, fileInfoProvider)
 	command.InitCommands(dockerManager)
 
 	cmdErr := command.RootCommand.Execute()
@@ -41,10 +40,9 @@ func main() {
 		panic(cmdErr)
 	}
 
-	cFile, _ = config.GetConfigFile()
 	if bytes.Compare(checksum.Md5Checksum(cFile), cFileChecksum) != 0 {
 		// write to disk only when cFile struct has changed
-		cWriteError := cFile.WriteToFile(configFilePath)
+		cWriteError := cFile.WriteToFile()
 		if cWriteError != nil {
 			fmt.Println(cWriteError)
 			os.Exit(1)

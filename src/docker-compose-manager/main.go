@@ -7,7 +7,7 @@ import (
 )
 
 type DockerComposeManagerInterface interface {
-	GetConfigFile() (config.ConfigurationFileInterface, error)
+	GetConfigFile() config.ConfigurationFileInterface
 	DockerComposeUp(files []dcf.DockerComposeFile)
 	DockerComposeStart(files []dcf.DockerComposeFile)
 	DockerComposeStop(files []dcf.DockerComposeFile)
@@ -32,6 +32,6 @@ func InitDockerComposeManager(cf config.ConfigurationFileInterface, runner syste
 	}
 }
 
-func (d *DockerComposeManager) GetConfigFile() (config.ConfigurationFileInterface, error) {
-	return d.configFile, nil
+func (d *DockerComposeManager) GetConfigFile() config.ConfigurationFileInterface {
+	return d.configFile
 }
