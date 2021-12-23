@@ -1,8 +1,6 @@
 package command
 
 import (
-	dcm "docker-compose-manager/src/docker-compose-manager"
-	"docker-compose-manager/src/system"
 	"fmt"
 	"github.com/spf13/cobra"
 	"log"
@@ -18,8 +16,11 @@ If no project name is provided current directory name is used.
 If no file is provided it look for one in current working directory.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fileInfo := system.InitFileInfoProvider(system.DefaultOSInfoProvider{})
-		dcFile, dcErr := dcm.LocateFileInCurrentDirectory()
+		currDir, cdErr := manager.GetFileInfoProvider().GetCurrentDirectory()
+		if cdErr != nil {
+			log.Fatal(cdErr)
+		}
+		dcFile, dcErr := manager.LocateFileInDirectory(currDir)
 		projectName := ""
 
 		switch len(args) {
@@ -37,14 +38,14 @@ If no file is provided it look for one in current working directory.
 			break
 
 		case 2:
-			dcFile = fileInfo.Expand(args[1])
-			if fileInfo.IsDir(dcFile) {
+			dcFile = manager.GetFileInfoProvider().Expand(args[1])
+			if manager.GetFileInfoProvider().IsDir(dcFile) {
 				var fileErr error
-				dcFile, fileErr = dcm.LocateFileInDirectory(dcFile)
+				dcFile, fileErr = manager.LocateFileInDirectory(dcFile)
 				if fileErr != nil {
 					log.Fatal(fileErr)
 				}
-			} else if !fileInfo.IsFile(dcFile) {
+			} else if !manager.GetFileInfoProvider().IsFile(dcFile) {
 				log.Fatal("Provided file does not exist")
 			}
 			projectName = args[0]

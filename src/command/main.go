@@ -5,6 +5,7 @@ import (
 	dcm "docker-compose-manager/src/docker-compose-manager"
 	"fmt"
 	"github.com/spf13/cobra"
+	"log"
 	"os"
 )
 
@@ -19,7 +20,11 @@ func getDcFilesFromCommandArguments(args []string) []dcf.DockerComposeFile {
 
 	switch len(args) {
 	case 0:
-		dcFilePath, err := dcm.LocateFileInCurrentDirectory()
+		currDir, cdErr := manager.GetFileInfoProvider().GetCurrentDirectory()
+		if cdErr != nil {
+			log.Fatal(cdErr)
+		}
+		dcFilePath, err := manager.LocateFileInDirectory(currDir)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(2)

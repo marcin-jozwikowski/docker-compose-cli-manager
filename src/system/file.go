@@ -1,11 +1,13 @@
 package system
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 )
 
 type FileInfoProviderInterface interface {
+	GetCurrentDirectory() (string, error)
 	Expand(path string) string
 	IsDir(path string) bool
 	IsFile(path string) bool
@@ -46,4 +48,12 @@ func (f FileInfoProvider) IsFile(path string) bool {
 	}
 
 	return stats.Mode().IsRegular()
+}
+
+func (f FileInfoProvider) GetCurrentDirectory() (string, error) {
+	path, cwdErr := f.osInfoProvider.CurrentDirectory()
+	if cwdErr != nil {
+		return "", fmt.Errorf("error locating current directory")
+	}
+	return path, nil
 }

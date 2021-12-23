@@ -3,6 +3,7 @@ package docker_compose_manager
 import (
 	"bufio"
 	"bytes"
+	"docker-compose-manager/src/config"
 	dcf "docker-compose-manager/src/docker-compose-file"
 	"docker-compose-manager/src/system"
 	"fmt"
@@ -10,8 +11,40 @@ import (
 	"strings"
 )
 
-var commandRunner system.CommandExecutionerInterface
-var fileInfoProvider system.FileInfoProviderInterface
+const DefaultDockerFileName = "docker-compose.yml"
+
+type DockerComposeManagerInterface interface {
+	GetConfigFile() config.ConfigurationFileInterface
+	DockerComposeUp(files []dcf.DockerComposeFile)
+	DockerComposeStart(files []dcf.DockerComposeFile)
+	DockerComposeStop(files []dcf.DockerComposeFile)
+	DockerComposeDown(files []dcf.DockerComposeFile)
+	DockerComposeStatus(files []dcf.DockerComposeFile) dcf.DockerComposeFileStatus
+	LocateFileInDirectory(dir string) (string, error)
+	GetFileInfoProvider() system.FileInfoProviderInterface
+}
+
+type DockerComposeManager struct {
+	configFile       config.ConfigurationFileInterface
+	commandRunner    system.CommandExecutionerInterface
+	fileInfoProvider system.FileInfoProviderInterface
+}
+
+func InitDockerComposeManager(cf config.ConfigurationFileInterface, runner system.CommandExecutionerInterface, provider system.FileInfoProviderInterface) DockerComposeManagerInterface {
+	return &DockerComposeManager{
+		configFile:       cf,
+		commandRunner:    runner,
+		fileInfoProvider: provider,
+	}
+}
+
+func (d *DockerComposeManager) GetFileInfoProvider() system.FileInfoProviderInterface {
+	return d.fileInfoProvider
+}
+
+func (d *DockerComposeManager) GetConfigFile() config.ConfigurationFileInterface {
+	return d.configFile
+}
 
 func (d *DockerComposeManager) DockerComposeUp(files []dcf.DockerComposeFile) {
 	d.runCommand("up", files, []string{"-d"})
@@ -43,6 +76,17 @@ func (d *DockerComposeManager) DockerComposeStatus(files []dcf.DockerComposeFile
 			return dcf.DcfStatusRunning
 		}
 	}
+}
+
+func (d *DockerComposeManager) LocateFileInDirectory(dir string) (string, error) {
+	// Generate docker-compose.yml path
+	dcFilePath := dir + string(os.PathSeparator) + DefaultDockerFileName
+	if d.fileInfoProvider.IsFile(dcFilePath) {
+		return dcFilePath, nil
+	}
+
+	// return error if file is not present
+	return "", fmt.Errorf("file not found")
 }
 
 func (d *DockerComposeManager) getRunningServicesCount(files []dcf.DockerComposeFile) (int, int) {
@@ -78,7 +122,7 @@ func (d *DockerComposeManager) getRunningServicesCount(files []dcf.DockerCompose
 
 func (d *DockerComposeManager) runCommand(command string, files []dcf.DockerComposeFile, arguments []string) {
 	args := d.generateCommandArgs(command, files, arguments)
-	err := commandRunner.RunCommand("docker-compose", args)
+	err := d.commandRunner.RunCommand("docker-compose", args)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -94,7 +138,7 @@ func (d *DockerComposeManager) generateCommandArgs(command string, files []dcf.D
 
 func (d *DockerComposeManager) runCommandForResult(command string, files []dcf.DockerComposeFile, arguments []string) []byte {
 	args := d.generateCommandArgs(command, files, arguments)
-	resultBytes, err := commandRunner.RunCommandForResult("docker-compose", args)
+	resultBytes, err := d.commandRunner.RunCommandForResult("docker-compose", args)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
