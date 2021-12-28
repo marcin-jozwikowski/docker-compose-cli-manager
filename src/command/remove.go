@@ -1,7 +1,6 @@
 package command
 
 import (
-	dcm "docker-compose-manager/src/docker-compose-manager"
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
@@ -15,11 +14,10 @@ var removeCommand = &cobra.Command{
 			fmt.Println("Name a project to remove")
 			os.Exit(1)
 		}
-		cFile, _ := dcm.GetConfigFile()
-		for projectName, _ := range cFile.Projects {
+		for _, projectName := range manager.GetConfigFile().GetDockerComposeProjectList("") {
 			for _, projectToRemove := range args {
 				if projectName == projectToRemove {
-					delete(cFile.Projects, projectName)
+					manager.GetConfigFile().DeleteProjectByName(projectName)
 					fmt.Println("Project removed: " + projectName)
 				}
 			}

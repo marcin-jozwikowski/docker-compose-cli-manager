@@ -1,7 +1,6 @@
 package command
 
 import (
-	dcm "docker-compose-manager/src/docker-compose-manager"
 	"github.com/spf13/cobra"
 )
 
@@ -10,7 +9,7 @@ var dfcStartCommand = &cobra.Command{
 	Short: "Starts docker-compose set",
 	Run: func(cmd *cobra.Command, args []string) {
 		dcFiles := getDcFilesFromCommandArguments(args)
-		dcm.DockerComposeStart(dcFiles)
+		manager.DockerComposeStart(dcFiles)
 	},
 	ValidArgsFunction: projectNamesAutocompletion,
 }

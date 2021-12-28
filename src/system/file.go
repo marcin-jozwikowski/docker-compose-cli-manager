@@ -1,13 +1,28 @@
 package system
 
 import (
-	"os"
+	"fmt"
 	"path/filepath"
 	"strings"
 )
 
-func Expand(path string) string {
-	homeDir, _ := os.UserHomeDir()
+type FileInfoProviderInterface interface {
+	GetCurrentDirectory() (string, error)
+	Expand(path string) string
+	IsDir(path string) bool
+	IsFile(path string) bool
+}
+
+type FileInfoProvider struct {
+	osInfoProvider OSInfoProviderInterface
+}
+
+func InitFileInfoProvider(providerInterface OSInfoProviderInterface) FileInfoProviderInterface {
+	return &FileInfoProvider{osInfoProvider: providerInterface}
+}
+
+func (f FileInfoProvider) Expand(path string) string {
+	homeDir, _ := f.osInfoProvider.UserHomeDir()
 	if path == "~" {
 		return homeDir
 	} else if strings.HasPrefix(path, "~/") {
@@ -17,13 +32,8 @@ func Expand(path string) string {
 	return path
 }
 
-func PathExists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
-}
-
-func IsDir(path string) bool {
-	stats, statErr := os.Stat(path)
+func (f FileInfoProvider) IsDir(path string) bool {
+	stats, statErr := f.osInfoProvider.Stat(path)
 	if statErr != nil {
 		return false
 	}
@@ -31,11 +41,19 @@ func IsDir(path string) bool {
 	return stats.IsDir()
 }
 
-func IsFile(path string) bool {
-	stats, statErr := os.Stat(path)
+func (f FileInfoProvider) IsFile(path string) bool {
+	stats, statErr := f.osInfoProvider.Stat(path)
 	if statErr != nil {
 		return false
 	}
 
 	return stats.Mode().IsRegular()
+}
+
+func (f FileInfoProvider) GetCurrentDirectory() (string, error) {
+	path, cwdErr := f.osInfoProvider.CurrentDirectory()
+	if cwdErr != nil {
+		return "", fmt.Errorf("error locating current directory")
+	}
+	return path, nil
 }
