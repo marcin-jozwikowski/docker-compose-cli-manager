@@ -33,7 +33,12 @@ func getDcFilesFromCommandArguments(args []string) dcm.DockerComposeProject {
 		break
 
 	case 1:
-		dcFiles = manager.GetConfigFile().GetDockerComposeFilesByProject(args[0])
+		var err error
+		dcFiles, err = manager.GetConfigFile().GetDockerComposeFilesByProject(args[0])
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 		break
 
 	default:
@@ -53,5 +58,12 @@ func projectNamesAutocompletion(cmd *cobra.Command, args []string, toComplete st
 	if len(args) != 0 {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	}
-	return manager.GetConfigFile().GetDockerComposeProjectList(toComplete), cobra.ShellCompDirectiveNoFileComp
+	projects, err := manager.GetConfigFile().GetDockerComposeProjectList(toComplete)
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	return projects, cobra.ShellCompDirectiveNoFileComp
 }

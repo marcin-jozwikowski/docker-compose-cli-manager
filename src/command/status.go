@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"math"
+	"os"
 	"strings"
 )
 
@@ -14,13 +15,23 @@ var statusCommand = &cobra.Command{
 	Long:  "Gets a status of docker-compose projects when no name is provided. Otherwise only status of one project is provided",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			projectList := manager.GetConfigFile().GetDockerComposeProjectList("")
+			projectList, err := manager.GetConfigFile().GetDockerComposeProjectList("")
+
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
 			maxProjectNameLength := 0
 			for _, project := range projectList {
 				maxProjectNameLength = int(math.Max(float64(maxProjectNameLength), float64(len(project))))
 			}
 			for _, project := range projectList {
-				projectFiles := manager.GetConfigFile().GetDockerComposeFilesByProject(project)
+				projectFiles, err := manager.GetConfigFile().GetDockerComposeFilesByProject(project)
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
 				fillingSuffix := strings.Repeat(" ", maxProjectNameLength-len(project))
 				fmt.Printf("\t %s --> %s \n", project+fillingSuffix, getProjectStatusString(projectFiles))
 			}

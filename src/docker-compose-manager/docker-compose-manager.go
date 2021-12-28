@@ -21,9 +21,9 @@ type DockerComposeManagerInterface interface {
 
 type ConfigurationInterface interface {
 	AddDockerComposeFile(file, projectName string) error
-	GetDockerComposeFilesByProject(projectName string) DockerComposeProject
-	GetDockerComposeProjectList(projectNamePrefix string) []string
-	DeleteProjectByName(name string)
+	GetDockerComposeFilesByProject(projectName string) (DockerComposeProject, error)
+	GetDockerComposeProjectList(projectNamePrefix string) ([]string, error)
+	DeleteProjectByName(name string) error
 }
 
 type FileInfoProviderInterface interface {
