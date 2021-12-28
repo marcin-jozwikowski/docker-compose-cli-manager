@@ -14,11 +14,22 @@ var removeCommand = &cobra.Command{
 			fmt.Println("Name a project to remove")
 			os.Exit(1)
 		}
-		for _, projectName := range manager.GetConfigFile().GetDockerComposeProjectList("") {
+
+		projectList, err := manager.GetConfigFile().GetDockerComposeProjectList("")
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		for _, projectName := range projectList {
 			for _, projectToRemove := range args {
 				if projectName == projectToRemove {
-					manager.GetConfigFile().DeleteProjectByName(projectName)
-					fmt.Println("Project removed: " + projectName)
+					err := manager.GetConfigFile().DeleteProjectByName(projectName)
+					if err == nil {
+						fmt.Println("Project removed: " + projectName)
+					} else {
+						fmt.Println(err)
+					}
 				}
 			}
 		}

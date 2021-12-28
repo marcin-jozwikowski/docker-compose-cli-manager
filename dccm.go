@@ -1,13 +1,11 @@
 package main
 
 import (
-	"bytes"
 	"docker-compose-manager/src/command"
 	"docker-compose-manager/src/config"
 	docker_compose_manager "docker-compose-manager/src/docker-compose-manager"
 	"docker-compose-manager/src/system"
 	"fmt"
-	"github.com/btnguyen2k/consu/checksum"
 	"os"
 )
 
@@ -17,12 +15,11 @@ func main() {
 		fmt.Println(cfpError)
 		os.Exit(1)
 	}
-	cFile, cError := config.ReadConfigFile(configFilePath)
-	if cError != nil {
-		fmt.Println(cError)
+	cFile, cFileError := config.InitializeBoltConfig(configFilePath)
+	if cfpError != nil {
+		fmt.Println(cFileError)
 		os.Exit(1)
 	}
-	cFileChecksum := checksum.Md5Checksum(cFile)
 
 	commandRunner := system.InitCommandExecutioner(system.DefaultCommandBuilder{
 		IoIn:  os.Stdin,
@@ -39,15 +36,6 @@ func main() {
 	if cmdErr != nil {
 		panic(cmdErr)
 	}
-
-	if bytes.Compare(checksum.Md5Checksum(cFile), cFileChecksum) != 0 {
-		// write to disk only when cFile struct has changed
-		cWriteError := cFile.WriteToFile()
-		if cWriteError != nil {
-			fmt.Println(cWriteError)
-			os.Exit(1)
-		}
-	}
 }
 
 func getConfigFilePath() (string, error) {
@@ -61,5 +49,5 @@ func getConfigFilePath() (string, error) {
 		return "", err
 	}
 
-	return filePathDir + string(os.PathSeparator) + "settings.json", nil
+	return filePathDir + string(os.PathSeparator) + "config.db", nil
 }
