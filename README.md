@@ -33,6 +33,5 @@ All commands can be followed with `--help` for detailed instructions.
 
 Still to do:
 * Tests
-* Module decoupling
 * Command for running container shell
 * CUI with all commands available
