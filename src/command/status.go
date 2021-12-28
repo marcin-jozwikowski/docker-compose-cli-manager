@@ -1,7 +1,6 @@
 package command
 
 import (
-	dcf "docker-compose-manager/src/docker-compose-file"
 	dcm "docker-compose-manager/src/docker-compose-manager"
 	"fmt"
 	"github.com/spf13/cobra"
@@ -33,17 +32,16 @@ var statusCommand = &cobra.Command{
 	ValidArgsFunction: projectNamesAutocompletion,
 }
 
-func getProjectStatusString(project []dcf.DockerComposeFile) string {
-	d := dcm.DockerComposeManager{}
-	status := d.DockerComposeStatus(project)
+func getProjectStatusString(project dcm.DockerComposeProject) string {
+	status := manager.DockerComposeStatus(project)
 	switch status {
-	case dcf.DcfStatusNew:
+	case dcm.DcfStatusNew:
 		return "New"
-	case dcf.DcfStatusRunning:
+	case dcm.DcfStatusRunning:
 		return "Running"
-	case dcf.DcfStatusMixed:
+	case dcm.DcfStatusMixed:
 		return "Partially running"
-	case dcf.DcfStatusStopped:
+	case dcm.DcfStatusStopped:
 		return "Stopped"
 	default:
 		return "Unknown"

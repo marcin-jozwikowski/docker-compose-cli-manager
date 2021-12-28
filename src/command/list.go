@@ -16,7 +16,7 @@ var listCommand = &cobra.Command{
 		for _, projectName := range projectList {
 			fmt.Printf("\t %s \n", projectName)
 			for _, oneFile := range manager.GetConfigFile().GetDockerComposeFilesByProject(projectName) {
-				fmt.Printf("\t\t --> %s\n", oneFile.FileName)
+				fmt.Printf("\t\t --> %s\n", oneFile.GetFilename())
 			}
 		}
 	},

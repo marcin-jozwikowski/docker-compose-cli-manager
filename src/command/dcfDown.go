@@ -1,7 +1,6 @@
 package command
 
 import (
-	dcm "docker-compose-manager/src/docker-compose-manager"
 	"github.com/spf13/cobra"
 )
 
@@ -9,9 +8,8 @@ var dfcDownCommand = &cobra.Command{
 	Use:   "down [project-name]",
 	Short: "Removes docker-compose set",
 	Run: func(cmd *cobra.Command, args []string) {
-		d := dcm.DockerComposeManager{}
 		dcFiles := getDcFilesFromCommandArguments(args)
-		d.DockerComposeDown(dcFiles)
+		manager.DockerComposeDown(dcFiles)
 	},
 	ValidArgsFunction: projectNamesAutocompletion,
 }

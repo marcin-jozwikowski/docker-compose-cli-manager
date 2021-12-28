@@ -1,7 +1,8 @@
-package docker_compose_file
+package docker_compose_manager
+
+const DefaultDockerFileName = "docker-compose.yml"
 
 type DockerComposeFileStatus uint8
-type DockerComposeFileFilteringFunction func(file *DockerComposeFile, value string) bool
 
 const (
 	DcfStatusUnknown DockerComposeFileStatus = iota
@@ -11,18 +12,25 @@ const (
 	DcfStatusMixed
 )
 
+type DockerComposeFileInterface interface {
+	GetFilename() string
+}
+type DockerComposeProject []DockerComposeFile
+
 type DockerComposeFile struct {
 	FileName string
-	Status   DockerComposeFileStatus
 }
 
 func Init(fileName string) DockerComposeFile {
 	return DockerComposeFile{
 		FileName: fileName,
-		Status:   DcfStatusUnknown,
 	}
 }
 
 func (dcf *DockerComposeFile) Filter(filerFunction func(file *DockerComposeFile, value string) bool, fieldValue string) bool {
 	return filerFunction(dcf, fieldValue)
+}
+
+func (dcf *DockerComposeFile) GetFilename() string {
+	return dcf.FileName
 }

@@ -1,7 +1,6 @@
 package command
 
 import (
-	dcf "docker-compose-manager/src/docker-compose-file"
 	dcm "docker-compose-manager/src/docker-compose-manager"
 	"fmt"
 	"github.com/spf13/cobra"
@@ -15,8 +14,8 @@ func InitCommands(managerInstance dcm.DockerComposeManagerInterface) {
 	manager = managerInstance
 }
 
-func getDcFilesFromCommandArguments(args []string) []dcf.DockerComposeFile {
-	var dcFiles []dcf.DockerComposeFile
+func getDcFilesFromCommandArguments(args []string) dcm.DockerComposeProject {
+	var dcFiles dcm.DockerComposeProject
 
 	switch len(args) {
 	case 0:
@@ -29,7 +28,8 @@ func getDcFilesFromCommandArguments(args []string) []dcf.DockerComposeFile {
 			fmt.Println(err)
 			os.Exit(2)
 		}
-		dcFiles = append(dcFiles, dcf.Init(dcFilePath))
+		dcmFile := dcm.Init(dcFilePath)
+		dcFiles = append(dcFiles, dcmFile)
 		break
 
 	case 1:

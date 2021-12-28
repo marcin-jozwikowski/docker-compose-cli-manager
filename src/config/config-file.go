@@ -1,7 +1,7 @@
 package config
 
 import (
-	dcf "docker-compose-manager/src/docker-compose-file"
+	dcf "docker-compose-manager/src/docker-compose-manager"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -20,8 +20,8 @@ type ConfigurationFileInterface interface {
 
 type ConfigurationFile struct {
 	path     string
-	Settings Settings                           `json:"settings"`
-	Projects map[string][]dcf.DockerComposeFile `json:"projects"`
+	Settings Settings                            `json:"settings"`
+	Projects map[string]dcf.DockerComposeProject `json:"projects"`
 }
 
 func initializeConfigFile(path string) ConfigurationFile {
@@ -83,21 +83,16 @@ func (configuration *ConfigurationFile) WriteToFile() error {
 
 func (configuration *ConfigurationFile) AddDockerComposeFile(file, projectName string) error {
 	if configuration.Projects == nil {
-		configuration.Projects = map[string][]dcf.DockerComposeFile{}
+		configuration.Projects = map[string]dcf.DockerComposeProject{}
 	}
 	if projectName == "" {
 		projectName = filepath.Base(filepath.Dir(file))
 	}
 	dcFile := dcf.Init(file)
-	var project []dcf.DockerComposeFile
-	var exists bool
 
-	project, exists = configuration.Projects[projectName]
-	if !exists {
-		project = []dcf.DockerComposeFile{dcFile}
-	} else {
-		project = append(project, dcFile)
-	}
+	var project dcf.DockerComposeProject
+	project, _ = configuration.Projects[projectName]
+	project = append(project, dcFile)
 
 	configuration.Projects[projectName] = project
 	return nil
@@ -107,7 +102,7 @@ func (configuration *ConfigurationFile) DeleteProjectByName(projectName string) 
 	delete(configuration.Projects, projectName)
 }
 
-func (configuration *ConfigurationFile) GetDockerComposeFilesByProject(projectName string) []dcf.DockerComposeFile {
+func (configuration *ConfigurationFile) GetDockerComposeFilesByProject(projectName string) dcf.DockerComposeProject {
 	return configuration.Projects[projectName]
 }
 
