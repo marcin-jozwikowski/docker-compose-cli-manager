@@ -25,6 +25,7 @@ If no file is provided it look for one in current working directory.
 
 		switch len(args) {
 		case 0:
+			projectName = manager.GetFileInfoProvider().GetDirectoryName(currDir)
 			if dcErr != nil {
 				log.Fatal(dcErr)
 			}
