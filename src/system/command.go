@@ -5,6 +5,11 @@ type executableCommand interface {
 	Output() ([]byte, error)
 }
 
+type commandBuilderInterface interface {
+	buildCommand(command string, args []string) executableCommand
+	buildInteractiveCommand(command string, args []string) executableCommand
+}
+
 type CommandExecutionerInterface interface {
 	RunCommand(command string, args []string) error
 	RunCommandForResult(command string, args []string) ([]byte, error)
