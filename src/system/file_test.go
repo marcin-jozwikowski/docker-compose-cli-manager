@@ -56,7 +56,7 @@ func (f fakeOSInfoProvider) Base(dir string) string {
 	return f.filepath
 }
 
-func TestTest_FileInfoProvider_InitFileInfoProvider(t *testing.T) {
+func Test_FileInfoProvider_InitFileInfoProvider(t *testing.T) {
 	result := InitFileInfoProvider(fakeOSInfoProvider{
 		filepath: "testFile",
 		err:      nil,
@@ -64,6 +64,14 @@ func TestTest_FileInfoProvider_InitFileInfoProvider(t *testing.T) {
 
 	if result == nil {
 		t.Error("Expected FileInfoProvider got nil")
+	}
+
+	switch result.(type) {
+	case FileInfoProviderInterface:
+		break
+
+	default:
+		t.Error("Invalid type. Expected FileInfoProvider")
 	}
 }
 
