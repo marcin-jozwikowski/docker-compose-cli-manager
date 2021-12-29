@@ -84,7 +84,7 @@ func (c *BoltConfigStorage) GetDockerComposeFilesByProject(projectName string) (
 		for key, value := c.First(); key != nil; key, value = c.Next() {
 			if value == nil { // a nil value means it's a bucket
 				filesBucket := files.Bucket(key)
-				result = append(result, dcf.DockerComposeFile{FileName: string(filesBucket.Get(bucketKeyFileName))})
+				result = append(result, dcf.InitDockerComposeFile(string(filesBucket.Get(bucketKeyFileName))))
 			}
 		}
 

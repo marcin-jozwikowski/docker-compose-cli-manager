@@ -18,19 +18,15 @@ type DockerComposeFileInterface interface {
 type DockerComposeProject []DockerComposeFile
 
 type DockerComposeFile struct {
-	FileName string
+	fileName string
 }
 
-func Init(fileName string) DockerComposeFile {
+func InitDockerComposeFile(fileName string) DockerComposeFile {
 	return DockerComposeFile{
-		FileName: fileName,
+		fileName: fileName,
 	}
 }
 
-func (dcf *DockerComposeFile) Filter(filerFunction func(file *DockerComposeFile, value string) bool, fieldValue string) bool {
-	return filerFunction(dcf, fieldValue)
-}
-
 func (dcf *DockerComposeFile) GetFilename() string {
-	return dcf.FileName
+	return dcf.fileName
 }

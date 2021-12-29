@@ -28,7 +28,7 @@ func getDcFilesFromCommandArguments(args []string) dcm.DockerComposeProject {
 			fmt.Println(err)
 			os.Exit(2)
 		}
-		dcmFile := dcm.Init(dcFilePath)
+		dcmFile := dcm.InitDockerComposeFile(dcFilePath)
 		dcFiles = append(dcFiles, dcmFile)
 		break
 
