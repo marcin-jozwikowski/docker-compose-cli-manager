@@ -8,17 +8,6 @@ import (
 	"strings"
 )
 
-type DockerComposeManagerInterface interface {
-	GetConfigFile() ConfigurationInterface
-	DockerComposeUp(files DockerComposeProject)
-	DockerComposeStart(files DockerComposeProject)
-	DockerComposeStop(files DockerComposeProject)
-	DockerComposeDown(files DockerComposeProject)
-	DockerComposeStatus(files DockerComposeProject) DockerComposeFileStatus
-	LocateFileInDirectory(dir string) (string, error)
-	GetFileInfoProvider() FileInfoProviderInterface
-}
-
 type ConfigurationInterface interface {
 	AddDockerComposeFile(file, projectName string) error
 	GetDockerComposeFilesByProject(projectName string) (DockerComposeProject, error)
@@ -45,8 +34,8 @@ type DockerComposeManager struct {
 	fileInfoProvider FileInfoProviderInterface
 }
 
-func InitDockerComposeManager(cf ConfigurationInterface, runner commandExecutionerInterface, provider FileInfoProviderInterface) DockerComposeManagerInterface {
-	return &DockerComposeManager{
+func InitDockerComposeManager(cf ConfigurationInterface, runner commandExecutionerInterface, provider FileInfoProviderInterface) DockerComposeManager {
+	return DockerComposeManager{
 		configFile:       cf,
 		commandRunner:    runner,
 		fileInfoProvider: provider,
@@ -78,7 +67,11 @@ func (d *DockerComposeManager) DockerComposeDown(files DockerComposeProject) {
 }
 
 func (d *DockerComposeManager) DockerComposeStatus(files DockerComposeProject) DockerComposeFileStatus {
-	total, running := d.getRunningServicesCount(files)
+	total, running, countError := d.getRunningServicesCount(files)
+
+	if countError != nil {
+		return DcfStatusUnknown
+	}
 
 	if total == 0 {
 		return DcfStatusNew
@@ -104,8 +97,11 @@ func (d *DockerComposeManager) LocateFileInDirectory(dir string) (string, error)
 	return "", fmt.Errorf("file not found")
 }
 
-func (d *DockerComposeManager) getRunningServicesCount(files DockerComposeProject) (int, int) {
-	result := d.runCommandForResult("ps", files, []string{})
+func (d *DockerComposeManager) getRunningServicesCount(files DockerComposeProject) (int, int, error) {
+	result, runningError := d.runCommandForResult("ps", files, []string{})
+	if runningError != nil {
+		return 0, 0, runningError
+	}
 	bytesReader := bytes.NewReader(result)
 	bufReader := bufio.NewReader(bytesReader)
 	_, _, _ = bufReader.ReadLine()
@@ -132,18 +128,15 @@ func (d *DockerComposeManager) getRunningServicesCount(files DockerComposeProjec
 		}
 	}
 
-	return totalCount, upCount
+	return totalCount, upCount, nil
 }
 
-func (d *DockerComposeManager) runCommand(command string, files DockerComposeProject, arguments []string) {
-	args := d.generateCommandArgs(command, files, arguments)
-	err := d.commandRunner.RunCommand("docker-compose", args)
-	if err != nil {
-		fmt.Println(err)
-	}
+func (d *DockerComposeManager) runCommand(command string, files DockerComposeProject, arguments []string) error {
+	args := d.generateDockerComposeCommandArgs(command, files, arguments)
+	return d.commandRunner.RunCommand("docker-compose", args)
 }
 
-func (d *DockerComposeManager) generateCommandArgs(command string, files DockerComposeProject, arguments []string) []string {
+func (d *DockerComposeManager) generateDockerComposeCommandArgs(command string, files DockerComposeProject, arguments []string) []string {
 	args := d.filesToArgs(files)
 	args = append(args, command)
 	args = append(args, arguments...)
@@ -151,15 +144,9 @@ func (d *DockerComposeManager) generateCommandArgs(command string, files DockerC
 	return args
 }
 
-func (d *DockerComposeManager) runCommandForResult(command string, files DockerComposeProject, arguments []string) []byte {
-	args := d.generateCommandArgs(command, files, arguments)
-	resultBytes, err := d.commandRunner.RunCommandForResult("docker-compose", args)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	return resultBytes
+func (d *DockerComposeManager) runCommandForResult(command string, files DockerComposeProject, arguments []string) ([]byte, error) {
+	args := d.generateDockerComposeCommandArgs(command, files, arguments)
+	return d.commandRunner.RunCommandForResult("docker-compose", args)
 }
 
 func (d *DockerComposeManager) filesToArgs(files DockerComposeProject) []string {

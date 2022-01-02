@@ -30,7 +30,7 @@ func main() {
 	fileInfoProvider := system.InitFileInfoProvider(system.DefaultOSInfoProvider{})
 
 	dockerManager := docker_compose_manager.InitDockerComposeManager(&cFile, commandRunner, fileInfoProvider)
-	command.InitCommands(dockerManager)
+	command.InitCommands(&dockerManager)
 
 	cmdErr := command.RootCommand.Execute()
 	if cmdErr != nil {

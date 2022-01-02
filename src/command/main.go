@@ -8,9 +8,20 @@ import (
 	"os"
 )
 
-var manager dcm.DockerComposeManagerInterface
+type DockerComposeManagerInterface interface {
+	GetConfigFile() dcm.ConfigurationInterface
+	DockerComposeUp(files dcm.DockerComposeProject)
+	DockerComposeStart(files dcm.DockerComposeProject)
+	DockerComposeStop(files dcm.DockerComposeProject)
+	DockerComposeDown(files dcm.DockerComposeProject)
+	DockerComposeStatus(files dcm.DockerComposeProject) dcm.DockerComposeFileStatus
+	LocateFileInDirectory(dir string) (string, error)
+	GetFileInfoProvider() dcm.FileInfoProviderInterface
+}
 
-func InitCommands(managerInstance dcm.DockerComposeManagerInterface) {
+var manager DockerComposeManagerInterface
+
+func InitCommands(managerInstance DockerComposeManagerInterface) {
 	manager = managerInstance
 }
 
