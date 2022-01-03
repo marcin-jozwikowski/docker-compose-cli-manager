@@ -1,5 +1,5 @@
 .idea/
 /dccm_playfield.go
-/docker-compose.yml
+/docker-compose*.yml
 /dccm
 /builds/

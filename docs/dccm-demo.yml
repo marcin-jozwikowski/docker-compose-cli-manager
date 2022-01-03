@@ -1,0 +1,402 @@
+# The configurations that used for the recording, feel free to edit them
+config:
+
+  # Specify a command to be executed
+  # like `/bin/bash -l`, `ls`, or any other commands
+  # the default is bash for Linux
+  # or powershell.exe for Windows
+  command: bash -l
+  
+  # Specify the current working directory path
+  # the default is the current working directory path
+  cwd: /home/mjozwikowski/test_project
+  
+  # Export additional ENV variables
+  env:
+    recording: true
+  
+  # Explicitly set the number of columns
+  # or use `auto` to take the current
+  # number of columns of your shell
+  cols: 120
+  
+  # Explicitly set the number of rows
+  # or use `auto` to take the current
+  # number of rows of your shell
+  rows: 25
+  
+  # Amount of times to repeat GIF
+  # If value is -1, play once
+  # If value is 0, loop indefinitely
+  # If value is a positive number, loop n times
+  repeat: 0
+  
+  # Quality
+  # 1 - 100
+  quality: 100
+  
+  # Delay between frames in ms
+  # If the value is `auto` use the actual recording delays
+  frameDelay: auto
+  
+  # Maximum delay between frames in ms
+  # Ignored if the `frameDelay` isn't set to `auto`
+  # Set to `auto` to prevent limiting the max idle time
+  maxIdleTime: 2000
+  
+  # The surrounding frame box
+  # The `type` can be null, window, floating, or solid`
+  # To hide the title use the value null
+  # Don't forget to add a backgroundColor style with a null as type
+  frameBox:
+    type: solid
+    title: docker-compose cli manager
+    style:
+      boxShadow: none
+      margin: 0px
+  
+  # Add a watermark image to the rendered gif
+  # You need to specify an absolute path for
+  # the image on your machine or a URL, and you can also
+  # add your own CSS styles
+  watermark:
+    imagePath: null
+    style:
+      position: absolute
+      right: 15px
+      bottom: 15px
+      width: 100px
+      opacity: 0.9
+  
+  # Cursor style can be one of
+  # `block`, `underline`, or `bar`
+  cursorStyle: block
+  
+  # Font family
+  # You can use any font that is installed on your machine
+  # in CSS-like syntax
+  fontFamily: "Monaco, Lucida Console, Ubuntu Mono, Monospace"
+  
+  # The size of the font
+  fontSize: 14
+  
+  # The height of lines
+  lineHeight: 1
+  
+  # The spacing between letters
+  letterSpacing: 0
+  
+  # Theme
+  theme:
+    background: "transparent"
+    foreground: "#afafaf"
+    cursor: "#c7c7c7"
+    black: "#232628"
+    red: "#fc4384"
+    green: "#b3e33b"
+    yellow: "#ffa727"
+    blue: "#75dff2"
+    magenta: "#ae89fe"
+    cyan: "#708387"
+    white: "#d5d5d0"
+    brightBlack: "#626566"
+    brightRed: "#ff7fac"
+    brightGreen: "#c8ed71"
+    brightYellow: "#ebdf86"
+    brightBlue: "#75dff2"
+    brightMagenta: "#ae89fe"
+    brightCyan: "#b1c6ca"
+    brightWhite: "#f9f9f4"
+  
+# Records, feel free to edit them
+records:
+  - delay: 393
+    content: "\e]0;mjozwikowski:~/test_project\e\\\e]7;file://G3/home/mjozwikowski/test_project\e\\\e]0;mjozwikowski: ~/test_project\a\e[01;32mmjozwikowski\e[00m:\e[01;34m~/test_project\e[01;31m\e[00m$ "
+  - delay: 829
+    content: d
+  - delay: 264
+    content: c
+  - delay: 136
+    content: c
+  - delay: 256
+    content: m
+  - delay: 192
+    content: ' '
+  - delay: 136
+    content: l
+  - delay: 112
+    content: i
+  - delay: 56
+    content: s
+  - delay: 176
+    content: t
+  - delay: 312
+    content: "\r\n"
+  - delay: 14
+    content: "Docker-compose files saved:\r\n\e]0;mjozwikowski:~/test_project\e\\"
+  - delay: 5
+    content: "\e]7;file://G3/home/mjozwikowski/test_project\e\\"
+  - delay: 11
+    content: "\e]0;mjozwikowski: ~/test_project\a\e[01;32mmjozwikowski\e[00m:\e[01;34m~/test_project\e[01;31m\e[00m$ "
+  - delay: 990
+    content: d
+  - delay: 450
+    content: c
+  - delay: 128
+    content: c
+  - delay: 176
+    content: m
+  - delay: 208
+    content: ' '
+  - delay: 472
+    content: a
+  - delay: 160
+    content: d
+  - delay: 136
+    content: d
+  - delay: 432
+    content: "\r\n"
+  - delay: 14
+    content: "\e]0;mjozwikowski:~/test_project\e\\\e]7;file://G3/home/mjozwikowski/test_project\e\\\e]0;mjozwikowski: ~/test_project\a\e[01;32mmjozwikowski\e[00m:\e[01;34m~/test_project\e[01;31m\e[00m$ "
+  - delay: 902
+    content: d
+  - delay: 312
+    content: c
+  - delay: 152
+    content: c
+  - delay: 320
+    content: m
+  - delay: 144
+    content: ' '
+  - delay: 232
+    content: l
+  - delay: 128
+    content: i
+  - delay: 104
+    content: s
+  - delay: 136
+    content: t
+  - delay: 248
+    content: "\r\n"
+  - delay: 11
+    content: "Docker-compose files saved:\r\n\t test_project \r\n\t\t --> /home/mjozwikowski/test_project/docker-compose.yml\r\n\e]0;mjozwikowski:~/test_project\e\\"
+  - delay: 5
+    content: "\e]7;file://G3/home/mjozwikowski/test_project\e\\"
+  - delay: 12
+    content: "\e]0;mjozwikowski: ~/test_project\a\e[01;32mmjozwikowski\e[00m:\e[01;34m~/test_project\e[01;31m\e[00m$ "
+  - delay: 650
+    content: d
+  - delay: 176
+    content: c
+  - delay: 128
+    content: c
+  - delay: 336
+    content: m
+  - delay: 168
+    content: ' '
+  - delay: 164
+    content: a
+  - delay: 296
+    content: d
+  - delay: 144
+    content: d
+  - delay: 456
+    content: ' '
+  - delay: 912
+    content: t
+  - delay: 112
+    content: e
+  - delay: 168
+    content: s
+  - delay: 126
+    content: t
+  - delay: 314
+    content: _
+  - delay: 264
+    content: p
+  - delay: 127
+    content: r
+  - delay: 104
+    content: o
+  - delay: 120
+    content: j
+  - delay: 128
+    content: e
+  - delay: 256
+    content: c
+  - delay: 175
+    content: t
+  - delay: 265
+    content: ' '
+  - delay: 284
+    content: '~'
+  - delay: 240
+    content: /
+  - delay: 312
+    content: t
+  - delay: 96
+    content: e
+  - delay: 232
+    content: s
+  - delay: 215
+    content: t_project/
+  - delay: 377
+    content: d
+  - delay: 120
+    content: o
+  - delay: 106
+    content: "\acker-compose"
+  - delay: 252
+    content: '-'
+  - delay: 231
+    content: 'additional.yml '
+  - delay: 327
+    content: "\r\n"
+  - delay: 15
+    content: "\e]0;mjozwikowski:~/test_project\e\\\e]7;file://G3/home/mjozwikowski/test_project\e\\\e]0;mjozwikowski: ~/test_project\a\e[01;32mmjozwikowski\e[00m:\e[01;34m~/test_project\e[01;31m\e[00m$ "
+  - delay: 1037
+    content: d
+  - delay: 312
+    content: c
+  - delay: 152
+    content: c
+  - delay: 320
+    content: m
+  - delay: 144
+    content: ' '
+  - delay: 232
+    content: l
+  - delay: 128
+    content: i
+  - delay: 104
+    content: s
+  - delay: 136
+    content: t
+  - delay: 248
+    content: "\r\n"
+  - delay: 11
+    content: "Docker-compose files saved:\r\n\t test_project \r\n\t\t --> /home/mjozwikowski/test_project/docker-compose.yml\r\n\t\t --> /home/mjozwikowski/test_project/docker-compose-additional.yml\r\n\e]0;mjozwikowski:~/test_project\e\\"
+  - delay: 5
+    content: "\e]7;file://G3/home/mjozwikowski/test_project\e\\"
+  - delay: 10
+    content: "\e]0;mjozwikowski: ~/test_project\a\e[01;32mmjozwikowski\e[00m:\e[01;34m~/test_project\e[01;31m\e[00m$ "
+  - delay: 524
+    content: d
+  - delay: 240
+    content: c
+  - delay: 152
+    content: c
+  - delay: 232
+    content: m
+  - delay: 120
+    content: ' '
+  - delay: 240
+    content: u
+  - delay: 119
+    content: p
+  - delay: 145
+    content: ' '
+  - delay: 624
+    content: t
+  - delay: 112
+    content: e
+  - delay: 207
+    content: 'st_project '
+  - delay: 401
+    content: "\r\n"
+  - delay: 480
+    content: "Building with native build. Learn about native build in Compose here: https://docs.docker.com/go/compose-native-build/\r\n"
+  - delay: 25
+    content: "Starting test_web ... \r\r\n"
+  - delay: 424
+    content: "\e[1A\e[2K\rStarting test_web ... \e[32mdone\e[0m\r\e[1B"
+  - delay: 77
+    content: "\e]0;mjozwikowski:~/test_project\e\\\e]7;file://G3/home/mjozwikowski/test_project\e\\\e]0;mjozwikowski: ~/test_project\a\e[01;32mmjozwikowski\e[00m:\e[01;34m~/test_project\e[01;31m\e[00m$ "
+  - delay: 522
+    content: d
+  - delay: 216
+    content: c
+  - delay: 112
+    content: c
+  - delay: 152
+    content: m
+  - delay: 121
+    content: ' '
+  - delay: 119
+    content: s
+  - delay: 192
+    content: t
+  - delay: 64
+    content: a
+  - delay: 72
+    content: t
+  - delay: 198
+    content: u
+  - delay: 153
+    content: s
+  - delay: 280
+    content: "\r\n"
+  - delay: 445
+    content: "\t test_project --> Running \r\n\e]0;mjozwikowski:~/test_project\e\\\e]7;file://G3/home/mjozwikowski/test_project\e\\\e]0;mjozwikowski: ~/test_project\a\e[01;32mmjozwikowski\e[00m:\e[01;34m~/test_project\e[01;31m\e[00m$ "
+  - delay: 639
+    content: d
+  - delay: 184
+    content: c
+  - delay: 128
+    content: c
+  - delay: 112
+    content: m
+  - delay: 120
+    content: ' '
+  - delay: 112
+    content: s
+  - delay: 264
+    content: t
+  - delay: 152
+    content: o
+  - delay: 112
+    content: p
+  - delay: 816
+    content: ' '
+  - delay: 232
+    content: t
+  - delay: 96
+    content: e
+  - delay: 140
+    content: 'st_project '
+  - delay: 316
+    content: "\r\n"
+  - delay: 405
+    content: "Stopping test_web ... \r\r\n"
+  - delay: 1313
+    content: "\e[1A\e[2K\rStopping test_web ... \e[32mdone\e[0m\r\e[1B"
+  - delay: 49
+    content: "\e]0;mjozwikowski:~/test_project\e\\\e]7;file://G3/home/mjozwikowski/test_project\e\\\e]0;mjozwikowski: ~/test_project\a\e[01;32mmjozwikowski\e[00m:\e[01;34m~/test_project\e[01;31m\e[00m$ "
+  - delay: 237
+    content: d
+  - delay: 238
+    content: c
+  - delay: 146
+    content: c
+  - delay: 176
+    content: m
+  - delay: 136
+    content: ' '
+  - delay: 400
+    content: s
+  - delay: 216
+    content: t
+  - delay: 32
+    content: a
+  - delay: 62
+    content: t
+  - delay: 562
+    content: u
+  - delay: 351
+    content: 's '
+  - delay: 193
+    content: "\r\n"
+  - delay: 446
+    content: "\t test_project --> Stopped \r\n\e]0;mjozwikowski:~/test_project\e\\\e]7;file://G3/home/mjozwikowski/test_project\e\\\e]0;mjozwikowski: ~/test_project\a\e[01;32mmjozwikowski\e[00m:\e[01;34m~/test_project\e[01;31m\e[00m$ "
+  - delay: 4575
+    content: "\r\n"
