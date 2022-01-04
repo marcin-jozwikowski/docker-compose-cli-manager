@@ -36,7 +36,7 @@ var statusCommand = &cobra.Command{
 				fmt.Printf("\t %s --> %s \n", project+fillingSuffix, getProjectStatusString(projectFiles))
 			}
 		} else {
-			projectFiles := getDcFilesFromCommandArguments(args)
+			projectFiles, _ := getDcFilesFromCommandArguments(args)
 			fmt.Printf("\t %s \n", getProjectStatusString(projectFiles))
 		}
 	},

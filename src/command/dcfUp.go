@@ -8,7 +8,7 @@ var dfcUpCommand = &cobra.Command{
 	Use:   "up [project-name]",
 	Short: "Creates docker-compose set",
 	Run: func(cmd *cobra.Command, args []string) {
-		dcFiles := getDcFilesFromCommandArguments(args)
+		dcFiles, _ := getDcFilesFromCommandArguments(args)
 		manager.DockerComposeUp(dcFiles)
 	},
 	ValidArgsFunction: projectNamesAutocompletion,
