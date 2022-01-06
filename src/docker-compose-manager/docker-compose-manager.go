@@ -62,8 +62,8 @@ func (d *DockerComposeManager) DockerComposeStop(files DockerComposeProject) {
 	d.runCommand("stop", files, []string{})
 }
 
-func (d *DockerComposeManager) DockerComposeDown(files DockerComposeProject) {
-	d.runCommand("down", files, []string{"--remove-orphans", "--volumes"})
+func (d *DockerComposeManager) DockerComposeDown(files DockerComposeProject) error {
+	return d.runCommand("down", files, []string{"--remove-orphans", "--volumes"})
 }
 
 func (d *DockerComposeManager) DockerComposeStatus(files DockerComposeProject) DockerComposeFileStatus {

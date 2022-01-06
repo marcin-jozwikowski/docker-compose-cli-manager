@@ -431,7 +431,11 @@ func TestDockerComposeManager_DockerComposeDown(t *testing.T) {
 	dcm, project, _ := createDefaultObjects()
 	resultRunCommandError = nil
 
-	dcm.DockerComposeDown(project)
+	mainErr := dcm.DockerComposeDown(project)
+
+	if mainErr != nil {
+		t.Errorf("Unecpected error: %s", mainErr)
+	}
 
 	if argumentRunCommandCommand != "docker-compose" {
 		t.Errorf("Invalid command run. Expected %s got %s", "docker-compose", argumentRunCommandCommand)
@@ -451,6 +455,17 @@ func TestDockerComposeManager_DockerComposeDown(t *testing.T) {
 	}
 	if argumentRunCommandArgs[6] != "--volumes" {
 		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 7, "--volumes", argumentRunCommandArgs[6])
+	}
+}
+
+func TestDockerComposeManager_DockerComposeDown_error(t *testing.T) {
+	dcm, project, _ := createDefaultObjects()
+	resultRunCommandError = errors.New("down error")
+
+	mainErr := dcm.DockerComposeDown(project)
+
+	if mainErr.Error() != "down error" {
+		t.Errorf("Unecpected error. Expected %s, got %s", "down error", mainErr)
 	}
 }
 

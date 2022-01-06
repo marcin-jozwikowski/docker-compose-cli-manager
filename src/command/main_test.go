@@ -3,10 +3,16 @@ package command
 import (
 	"bytes"
 	"docker-compose-manager/src/docker-compose-manager"
+	"docker-compose-manager/src/tests"
 	"errors"
 	"github.com/spf13/cobra"
 	"testing"
 )
+
+var noArguments []string
+var oneArgument []string
+var twoArguments []string
+var fakeCommand *cobra.Command
 
 var fakeBuffer bytes.Buffer
 
@@ -72,20 +78,31 @@ func (f fakeFileInfoProvider) GetDirectoryName(dir string) string {
 type fakeManager struct {
 }
 
+var argumentDockerComposeUp docker_compose_manager.DockerComposeProject
+var argumentDockerComposeStart docker_compose_manager.DockerComposeProject
+var argumentDockerComposeStop docker_compose_manager.DockerComposeProject
+var argumentDockerComposeDown docker_compose_manager.DockerComposeProject
+var resultDockerComposeDown error
+
 func (f fakeManager) GetConfigFile() docker_compose_manager.ConfigurationInterface {
 	return fakeConfiguration{}
 }
 
 func (f fakeManager) DockerComposeUp(files docker_compose_manager.DockerComposeProject) {
+	argumentDockerComposeUp = files
 }
 
 func (f fakeManager) DockerComposeStart(files docker_compose_manager.DockerComposeProject) {
+	argumentDockerComposeStart = files
 }
 
 func (f fakeManager) DockerComposeStop(files docker_compose_manager.DockerComposeProject) {
+	argumentDockerComposeStop = files
 }
 
-func (f fakeManager) DockerComposeDown(files docker_compose_manager.DockerComposeProject) {
+func (f fakeManager) DockerComposeDown(files docker_compose_manager.DockerComposeProject) error {
+	argumentDockerComposeDown = files
+	return resultDockerComposeDown
 }
 
 func (f fakeManager) DockerComposeStatus(files docker_compose_manager.DockerComposeProject) docker_compose_manager.DockerComposeFileStatus {
@@ -125,27 +142,16 @@ func setupTest() {
 	argumentLocateFileInDirectoryDir = ""
 	resultLocateFileInDirectory = ""
 	resultLocateFileInDirectoryError = nil
-}
-
-func assertErrorEquals(t *testing.T, expected string, err error) {
-	if err == nil {
-		t.Errorf("Expected error: %s, got nil", expected)
-	}
-
-	if err.Error() != expected {
-		t.Errorf("Unexpected error. Expected %s, got %s", expected, err)
-	}
+	argumentDockerComposeUp = nil
+	argumentDockerComposeStart = nil
+	argumentDockerComposeStop = nil
+	argumentDockerComposeDown = nil
+	resultDockerComposeDown = nil
 }
 
 func assertOutputEqual(t *testing.T, expected string) {
 	if fakeBuffer.String() != expected {
 		t.Errorf("Invalid output received. Expected '%s', got '%s", expected, fakeBuffer.String())
-	}
-}
-
-func assertNil(t *testing.T, obj interface{}, description string) {
-	if obj != nil {
-		t.Errorf("Unexpected value in %s. Expected nil, got %+v", description, obj)
 	}
 }
 
@@ -163,7 +169,7 @@ func Test_getDcFilesFromCommandArguments_NoArguments(t *testing.T) {
 	resultLocateFileInDirectoryError = nil
 	project, err := getDcFilesFromCommandArguments([]string{})
 
-	assertNil(t, err, "Test_getDcFilesFromCommandArguments_NoArguments")
+	tests.AssertNil(t, err, "Test_getDcFilesFromCommandArguments_NoArguments")
 
 	if project == nil {
 		t.Errorf("Expected project, got nil")
@@ -185,7 +191,7 @@ func Test_getDcFilesFromCommandArguments_NoArguments_DirectoryError(t *testing.T
 
 	project, err := getDcFilesFromCommandArguments([]string{})
 
-	assertErrorEquals(t, "A error", err)
+	tests.AssertErrorEquals(t, "A error", err)
 	if project != nil {
 		t.Errorf("Unexpected project, got %v", project)
 	}
@@ -200,7 +206,7 @@ func Test_getDcFilesFromCommandArguments_NoArguments_Error(t *testing.T) {
 
 	project, err := getDcFilesFromCommandArguments([]string{})
 
-	assertErrorEquals(t, "A error", err)
+	tests.AssertErrorEquals(t, "A error", err)
 
 	if project != nil {
 		t.Errorf("Unexpected project, got %v", project)
@@ -239,7 +245,7 @@ func Test_getDcFilesFromCommandArguments_OneArgument_Error(t *testing.T) {
 
 	project, err := getDcFilesFromCommandArguments([]string{"projectName"})
 
-	assertErrorEquals(t, "A error", err)
+	tests.AssertErrorEquals(t, "A error", err)
 
 	if project != nil {
 		t.Errorf("Unexpected project, got %v", project)
@@ -250,7 +256,7 @@ func Test_getDcFilesFromCommandArguments_TwoArguments(t *testing.T) {
 	setupTest()
 	project, err := getDcFilesFromCommandArguments([]string{"projectName", "other"})
 
-	assertErrorEquals(t, "provide only one project name", err)
+	tests.AssertErrorEquals(t, "provide only one project name", err)
 
 	if project != nil {
 		t.Errorf("Expected projects to be nil, got %+v", project)
@@ -264,7 +270,7 @@ func Test_getDcFilesFromCommandArguments_NoDcFiles(t *testing.T) {
 
 	project, err := getDcFilesFromCommandArguments([]string{"projectName"})
 
-	assertErrorEquals(t, "no files to execute", err)
+	tests.AssertErrorEquals(t, "no files to execute", err)
 	if project != nil {
 		t.Errorf("Expected projects to be nil, got %+v", project)
 	}

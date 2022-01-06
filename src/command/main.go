@@ -12,7 +12,7 @@ type DockerComposeManagerInterface interface {
 	DockerComposeUp(files dcm.DockerComposeProject)
 	DockerComposeStart(files dcm.DockerComposeProject)
 	DockerComposeStop(files dcm.DockerComposeProject)
-	DockerComposeDown(files dcm.DockerComposeProject)
+	DockerComposeDown(files dcm.DockerComposeProject) error
 	DockerComposeStatus(files dcm.DockerComposeProject) dcm.DockerComposeFileStatus
 	LocateFileInDirectory(dir string) (string, error)
 	GetFileInfoProvider() dcm.FileInfoProviderInterface
