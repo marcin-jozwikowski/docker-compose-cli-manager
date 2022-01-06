@@ -31,6 +31,7 @@ type FileInfoProviderInterface interface {
 	Expand(path string) string
 	IsDir(path string) bool
 	IsFile(path string) bool
+	GetDirectoryName(dir string) string
 }
 
 type commandExecutionerInterface interface {

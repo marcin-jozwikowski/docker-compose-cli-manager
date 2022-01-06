@@ -1,11 +1,15 @@
 package system
 
-import "os"
+import (
+	"os"
+	"path/filepath"
+)
 
 type OSInfoProviderInterface interface {
 	UserHomeDir() (string, error)
 	Stat(name string) (os.FileInfo, error)
 	CurrentDirectory() (string, error)
+	Base(dir string) string
 }
 
 type DefaultOSInfoProvider struct{}
@@ -20,4 +24,8 @@ func (o DefaultOSInfoProvider) Stat(name string) (os.FileInfo, error) {
 
 func (o DefaultOSInfoProvider) CurrentDirectory() (string, error) {
 	return os.Getwd()
+}
+
+func (o DefaultOSInfoProvider) Base(dir string) string {
+	return filepath.Base(dir)
 }

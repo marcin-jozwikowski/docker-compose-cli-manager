@@ -7,6 +7,7 @@ import (
 )
 
 type FileInfoProviderInterface interface {
+	GetDirectoryName(dir string) string
 	GetCurrentDirectory() (string, error)
 	Expand(path string) string
 	IsDir(path string) bool
@@ -56,4 +57,8 @@ func (f FileInfoProvider) GetCurrentDirectory() (string, error) {
 		return "", fmt.Errorf("error locating current directory")
 	}
 	return path, nil
+}
+
+func (f FileInfoProvider) GetDirectoryName(dir string) string {
+	return f.osInfoProvider.Base(dir)
 }
