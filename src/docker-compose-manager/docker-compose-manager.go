@@ -50,16 +50,16 @@ func (d *DockerComposeManager) GetConfigFile() ConfigurationInterface {
 	return d.configFile
 }
 
-func (d *DockerComposeManager) DockerComposeUp(files DockerComposeProject) {
-	d.runCommand("up", files, []string{"-d"})
+func (d *DockerComposeManager) DockerComposeUp(files DockerComposeProject) error {
+	return d.runCommand("up", files, []string{"-d"})
 }
 
-func (d *DockerComposeManager) DockerComposeStart(files DockerComposeProject) {
-	d.runCommand("start", files, []string{})
+func (d *DockerComposeManager) DockerComposeStart(files DockerComposeProject) error {
+	return d.runCommand("start", files, []string{})
 }
 
-func (d *DockerComposeManager) DockerComposeStop(files DockerComposeProject) {
-	d.runCommand("stop", files, []string{})
+func (d *DockerComposeManager) DockerComposeStop(files DockerComposeProject) error {
+	return d.runCommand("stop", files, []string{})
 }
 
 func (d *DockerComposeManager) DockerComposeDown(files DockerComposeProject) error {

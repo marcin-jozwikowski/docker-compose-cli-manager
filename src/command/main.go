@@ -9,9 +9,9 @@ import (
 
 type DockerComposeManagerInterface interface {
 	GetConfigFile() dcm.ConfigurationInterface
-	DockerComposeUp(files dcm.DockerComposeProject)
-	DockerComposeStart(files dcm.DockerComposeProject)
-	DockerComposeStop(files dcm.DockerComposeProject)
+	DockerComposeUp(files dcm.DockerComposeProject) error
+	DockerComposeStart(files dcm.DockerComposeProject) error
+	DockerComposeStop(files dcm.DockerComposeProject) error
 	DockerComposeDown(files dcm.DockerComposeProject) error
 	DockerComposeStatus(files dcm.DockerComposeProject) dcm.DockerComposeFileStatus
 	LocateFileInDirectory(dir string) (string, error)

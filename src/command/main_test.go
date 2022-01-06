@@ -79,8 +79,11 @@ type fakeManager struct {
 }
 
 var argumentDockerComposeUp docker_compose_manager.DockerComposeProject
+var resultDockerComposeUp error
 var argumentDockerComposeStart docker_compose_manager.DockerComposeProject
+var resultDockerComposeStart error
 var argumentDockerComposeStop docker_compose_manager.DockerComposeProject
+var resultDockerComposeStop error
 var argumentDockerComposeDown docker_compose_manager.DockerComposeProject
 var resultDockerComposeDown error
 
@@ -88,16 +91,19 @@ func (f fakeManager) GetConfigFile() docker_compose_manager.ConfigurationInterfa
 	return fakeConfiguration{}
 }
 
-func (f fakeManager) DockerComposeUp(files docker_compose_manager.DockerComposeProject) {
+func (f fakeManager) DockerComposeUp(files docker_compose_manager.DockerComposeProject) error {
 	argumentDockerComposeUp = files
+	return resultDockerComposeUp
 }
 
-func (f fakeManager) DockerComposeStart(files docker_compose_manager.DockerComposeProject) {
+func (f fakeManager) DockerComposeStart(files docker_compose_manager.DockerComposeProject) error {
 	argumentDockerComposeStart = files
+	return resultDockerComposeStart
 }
 
-func (f fakeManager) DockerComposeStop(files docker_compose_manager.DockerComposeProject) {
+func (f fakeManager) DockerComposeStop(files docker_compose_manager.DockerComposeProject) error {
 	argumentDockerComposeStop = files
+	return resultDockerComposeStop
 }
 
 func (f fakeManager) DockerComposeDown(files docker_compose_manager.DockerComposeProject) error {
@@ -144,6 +150,7 @@ func setupTest() {
 	resultLocateFileInDirectoryError = nil
 	argumentDockerComposeUp = nil
 	argumentDockerComposeStart = nil
+	resultDockerComposeStart = nil
 	argumentDockerComposeStop = nil
 	argumentDockerComposeDown = nil
 	resultDockerComposeDown = nil
