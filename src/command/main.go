@@ -4,6 +4,7 @@ import (
 	dcm "docker-compose-manager/src/docker-compose-manager"
 	"errors"
 	"github.com/spf13/cobra"
+	"io"
 )
 
 type DockerComposeManagerInterface interface {
@@ -18,9 +19,11 @@ type DockerComposeManagerInterface interface {
 }
 
 var manager DockerComposeManagerInterface
+var mainWriter io.Writer
 
-func InitCommands(managerInstance DockerComposeManagerInterface) {
+func InitCommands(managerInstance DockerComposeManagerInterface, writer io.Writer) {
 	manager = managerInstance
+	mainWriter = writer
 }
 
 func getDcFilesFromCommandArguments(args []string) (dcm.DockerComposeProject, error) {

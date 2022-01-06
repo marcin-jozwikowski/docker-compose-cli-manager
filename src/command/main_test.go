@@ -1,11 +1,14 @@
 package command
 
 import (
+	"bytes"
 	"docker-compose-manager/src/docker-compose-manager"
 	"errors"
 	"github.com/spf13/cobra"
 	"testing"
 )
+
+var fakeBuffer bytes.Buffer
 
 type fakeConfiguration struct {
 }
@@ -103,7 +106,9 @@ func (f fakeManager) GetFileInfoProvider() docker_compose_manager.FileInfoProvid
 }
 
 func setupTest() {
-	InitCommands(fakeManager{})
+	fakeBuffer = bytes.Buffer{}
+
+	InitCommands(fakeManager{}, &fakeBuffer)
 
 	resultAddDockerComposeError = nil
 	resultGetDockerComposeFilesByProject = nil
@@ -122,6 +127,28 @@ func setupTest() {
 	resultLocateFileInDirectoryError = nil
 }
 
+func assertErrorEquals(t *testing.T, expected string, err error) {
+	if err == nil {
+		t.Errorf("Expected error: %s, got nil", expected)
+	}
+
+	if err.Error() != expected {
+		t.Errorf("Unexpected error. Expected %s, got %s", expected, err)
+	}
+}
+
+func assertOutputEqual(t *testing.T, expected string) {
+	if fakeBuffer.String() != expected {
+		t.Errorf("Invalid output received. Expected '%s', got '%s", expected, fakeBuffer.String())
+	}
+}
+
+func assertNil(t *testing.T, obj interface{}, description string) {
+	if obj != nil {
+		t.Errorf("Unexpected value in %s. Expected nil, got %+v", description, obj)
+	}
+}
+
 func TestInitCommands(t *testing.T) {
 	setupTest()
 	if manager == nil {
@@ -136,9 +163,7 @@ func Test_getDcFilesFromCommandArguments_NoArguments(t *testing.T) {
 	resultLocateFileInDirectoryError = nil
 	project, err := getDcFilesFromCommandArguments([]string{})
 
-	if err != nil {
-		t.Errorf("Unexpected error: %s", err)
-	}
+	assertNil(t, err, "Test_getDcFilesFromCommandArguments_NoArguments")
 
 	if project == nil {
 		t.Errorf("Expected project, got nil")
@@ -160,14 +185,7 @@ func Test_getDcFilesFromCommandArguments_NoArguments_DirectoryError(t *testing.T
 
 	project, err := getDcFilesFromCommandArguments([]string{})
 
-	if err == nil {
-		t.Errorf("Expected error: %s", err)
-	}
-
-	if err.Error() != "A error" {
-		t.Errorf("Unexpected error. Expected %s, got %s", "A error", err)
-	}
-
+	assertErrorEquals(t, "A error", err)
 	if project != nil {
 		t.Errorf("Unexpected project, got %v", project)
 	}
@@ -182,13 +200,7 @@ func Test_getDcFilesFromCommandArguments_NoArguments_Error(t *testing.T) {
 
 	project, err := getDcFilesFromCommandArguments([]string{})
 
-	if err == nil {
-		t.Errorf("Expected error: %s", err)
-	}
-
-	if err.Error() != "A error" {
-		t.Errorf("Unexpected error. Expected %s, got %s", "A error", err)
-	}
+	assertErrorEquals(t, "A error", err)
 
 	if project != nil {
 		t.Errorf("Unexpected project, got %v", project)
@@ -227,13 +239,7 @@ func Test_getDcFilesFromCommandArguments_OneArgument_Error(t *testing.T) {
 
 	project, err := getDcFilesFromCommandArguments([]string{"projectName"})
 
-	if err == nil {
-		t.Errorf("Expected error: %s", err)
-	}
-
-	if err.Error() != "A error" {
-		t.Errorf("Unexpected error. Expected %s, got %s", "A error", err)
-	}
+	assertErrorEquals(t, "A error", err)
 
 	if project != nil {
 		t.Errorf("Unexpected project, got %v", project)
@@ -244,13 +250,7 @@ func Test_getDcFilesFromCommandArguments_TwoArguments(t *testing.T) {
 	setupTest()
 	project, err := getDcFilesFromCommandArguments([]string{"projectName", "other"})
 
-	if err == nil {
-		t.Errorf("Expected error")
-	}
-
-	if err.Error() != "provide only one project name" {
-		t.Errorf("Invalid error. Expected %s, got %s", "provide only one project name", err.Error())
-	}
+	assertErrorEquals(t, "provide only one project name", err)
 
 	if project != nil {
 		t.Errorf("Expected projects to be nil, got %+v", project)
@@ -264,14 +264,7 @@ func Test_getDcFilesFromCommandArguments_NoDcFiles(t *testing.T) {
 
 	project, err := getDcFilesFromCommandArguments([]string{"projectName"})
 
-	if err == nil {
-		t.Errorf("Expected error")
-	}
-
-	if err.Error() != "no files to execute" {
-		t.Errorf("Invalid error. Expected %s, got %s", "no files to execute", err.Error())
-	}
-
+	assertErrorEquals(t, "no files to execute", err)
 	if project != nil {
 		t.Errorf("Expected projects to be nil, got %+v", project)
 	}
