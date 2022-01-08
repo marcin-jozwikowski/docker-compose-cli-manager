@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"math"
-	"os"
 	"strings"
 )
 
@@ -13,13 +12,12 @@ var statusCommand = &cobra.Command{
 	Use:   "status [project name]",
 	Short: "Gets a status of docker-compose project(s)",
 	Long:  "Gets a status of docker-compose projects when no name is provided. Otherwise only status of one project is provided",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
 			projectList, err := manager.GetConfigFile().GetDockerComposeProjectList("")
 
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				return err
 			}
 
 			maxProjectNameLength := 0
@@ -29,16 +27,17 @@ var statusCommand = &cobra.Command{
 			for _, project := range projectList {
 				projectFiles, err := manager.GetConfigFile().GetDockerComposeFilesByProject(project)
 				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+					return err
 				}
 				fillingSuffix := strings.Repeat(" ", maxProjectNameLength-len(project))
-				fmt.Printf("\t %s --> %s \n", project+fillingSuffix, getProjectStatusString(projectFiles))
+				_, _ = fmt.Fprintf(mainWriter, "\t %s --> %s \n", project+fillingSuffix, getProjectStatusString(projectFiles))
 			}
 		} else {
 			projectFiles, _ := getDcFilesFromCommandArguments(args)
-			fmt.Printf("\t %s \n", getProjectStatusString(projectFiles))
+			_, _ = fmt.Fprintf(mainWriter, "\t %s \n", getProjectStatusString(projectFiles))
 		}
+
+		return nil
 	},
 	ValidArgsFunction: projectNamesAutocompletion,
 }

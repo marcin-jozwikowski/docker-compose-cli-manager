@@ -3,7 +3,6 @@ package command
 import (
 	"docker-compose-manager/src/tests"
 	"errors"
-	"github.com/spf13/cobra"
 	"testing"
 )
 
@@ -117,9 +116,5 @@ func TestAddCommand_tooManyArguments(t *testing.T) {
 func setupAddTest() {
 	setupTest()
 	resultLocateFileInDirectory = "dcFileName.yml"
-	noArguments = []string{}
-	oneArgument = []string{"firstArg"}
-	twoArguments = []string{"firstArg", "secondArg"}
-	fakeCommand = &cobra.Command{}
 
 }

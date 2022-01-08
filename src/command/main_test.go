@@ -88,6 +88,7 @@ var argumentDockerComposeStop docker_compose_manager.DockerComposeProject
 var resultDockerComposeStop error
 var argumentDockerComposeDown docker_compose_manager.DockerComposeProject
 var resultDockerComposeDown error
+var resultDockerComposeStatus docker_compose_manager.DockerComposeFileStatus
 
 func (f fakeManager) GetConfigFile() docker_compose_manager.ConfigurationInterface {
 	return fakeConfiguration{}
@@ -114,7 +115,7 @@ func (f fakeManager) DockerComposeDown(files docker_compose_manager.DockerCompos
 }
 
 func (f fakeManager) DockerComposeStatus(files docker_compose_manager.DockerComposeProject) docker_compose_manager.DockerComposeFileStatus {
-	return docker_compose_manager.DcfStatusUnknown
+	return resultDockerComposeStatus
 }
 
 var argumentLocateFileInDirectoryDir string
@@ -157,6 +158,12 @@ func setupTest() {
 	argumentDockerComposeStop = nil
 	argumentDockerComposeDown = nil
 	resultDockerComposeDown = nil
+	resultDockerComposeStatus = docker_compose_manager.DcfStatusUnknown
+
+	noArguments = []string{}
+	oneArgument = []string{"firstArg"}
+	twoArguments = []string{"firstArg", "secondArg"}
+	fakeCommand = &cobra.Command{}
 }
 
 func assertOutputEqual(t *testing.T, expected string) {
