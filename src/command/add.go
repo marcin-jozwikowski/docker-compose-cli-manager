@@ -61,7 +61,7 @@ If no file is provided it look for one in current working directory.
 			return err
 		}
 
-		_, _ = fmt.Fprintf(mainWriter, "File '%s' added to project '%s'", dcFile, projectName)
+		_, _ = fmt.Fprintf(mainWriter, "File '%s' added to project '%s' \n", dcFile, projectName)
 
 		return nil
 	},

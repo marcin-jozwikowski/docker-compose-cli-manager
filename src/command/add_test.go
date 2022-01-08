@@ -58,7 +58,7 @@ func TestAddCommand_oneArgSuccess(t *testing.T) {
 	err := addCommand.RunE(fakeCommand, oneArgument)
 
 	tests.AssertNil(t, err, "TestAddCommand_oneArgSuccess")
-	assertOutputEqual(t, "File 'dcFileName.yml' added to project 'firstArg'")
+	assertOutputEqual(t, "File 'dcFileName.yml' added to project 'firstArg' \n")
 }
 
 func TestAddCommand_twoArguments_locateError(t *testing.T) {
@@ -91,7 +91,7 @@ func TestAddCommand_twoArguments_directoryProvided(t *testing.T) {
 	err := addCommand.RunE(fakeCommand, twoArguments)
 
 	tests.AssertNil(t, err, "TestAddCommand_twoArguments_directoryProvided")
-	assertOutputEqual(t, "File 'dcFileName.yml' added to project 'firstArg'")
+	assertOutputEqual(t, "File 'dcFileName.yml' added to project 'firstArg' \n")
 }
 
 func TestAddCommand_twoArguments_fileProvided(t *testing.T) {
@@ -103,7 +103,7 @@ func TestAddCommand_twoArguments_fileProvided(t *testing.T) {
 	err := addCommand.RunE(fakeCommand, twoArguments)
 
 	tests.AssertNil(t, err, "TestAddCommand_twoArguments_directoryProvided")
-	assertOutputEqual(t, "File 'expanded/result' added to project 'firstArg'")
+	assertOutputEqual(t, "File 'expanded/result' added to project 'firstArg' \n")
 }
 
 func TestAddCommand_tooManyArguments(t *testing.T) {
