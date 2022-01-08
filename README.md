@@ -36,10 +36,3 @@ All commands can be followed with `--help` for detailed instructions.
 | `dccm down [projectName]` | Runs `docker-compose down --remove-orphans --volumes` command on a project. `[projectName]` defaults to current directory name. |
 | `dccm start [projectName]` | Runs `docker-compose start` command on a project. `[projectName]` defaults to current directory name. |
 | `dccm stop [projectName]` | Runs `docker-compose stop` command on a project. `[projectName]` defaults to current directory name. |
-
-## Roadmap
-
-Still to do:
-* Tests
-* Command for running container shell
-* CUI with all commands available
