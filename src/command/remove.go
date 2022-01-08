@@ -1,38 +1,29 @@
 package command
 
 import (
+	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var removeCommand = &cobra.Command{
 	Use:   "remove",
-	Short: "Removes a project from saved list",
-	Run: func(cmd *cobra.Command, args []string) {
+	Short: "Removes a projects from saved list",
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			fmt.Println("Name a project to remove")
-			os.Exit(1)
+			return errors.New("name at least one project to remove")
 		}
 
-		projectList, err := manager.GetConfigFile().GetDockerComposeProjectList("")
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		for _, projectName := range projectList {
-			for _, projectToRemove := range args {
-				if projectName == projectToRemove {
-					err := manager.GetConfigFile().DeleteProjectByName(projectName)
-					if err == nil {
-						fmt.Println("Project removed: " + projectName)
-					} else {
-						fmt.Println(err)
-					}
-				}
+		for _, projectToRemove := range args {
+			err := manager.GetConfigFile().DeleteProjectByName(projectToRemove)
+			if err == nil {
+				_, _ = fmt.Fprintf(mainWriter, "Project removed: "+projectToRemove+"\n")
+			} else {
+				return err
 			}
 		}
+
+		return nil
 	},
 	ValidArgsFunction: projectNamesAutocompletion,
 }

@@ -28,6 +28,7 @@ var resultGetDockerComposeProjectList []string
 var resultGetDockerComposeProjectListError error
 
 var resultDeleteProjectByNameError error
+var argumentDeleteProjectByName string
 
 func (f fakeConfiguration) AddDockerComposeFile(file, projectName string) error {
 	return resultAddDockerComposeError
@@ -42,6 +43,7 @@ func (f fakeConfiguration) GetDockerComposeProjectList(projectNamePrefix string)
 }
 
 func (f fakeConfiguration) DeleteProjectByName(name string) error {
+	argumentDeleteProjectByName = name
 	return resultDeleteProjectByNameError
 }
 
@@ -139,6 +141,7 @@ func setupTest() {
 	resultGetDockerComposeProjectList = nil
 	resultGetDockerComposeProjectListError = nil
 	resultDeleteProjectByNameError = nil
+	argumentDeleteProjectByName = ""
 	resultGetCurrentDirectory = ""
 	resultGetCurrentDirectoryError = nil
 	resultExpand = ""
