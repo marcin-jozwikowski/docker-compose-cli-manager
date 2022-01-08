@@ -3,3 +3,4 @@
 /docker-compose*.yml
 /dccm
 /builds/
+/coverage.out

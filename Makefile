@@ -1,6 +1,16 @@
 tag = $(shell git describe --tags --abbrev=0)
 
-all:
+all: tests
+
+tests:
+	go test ./...
+
+tests_coverage:
+	go get golang.org/x/tools/cmd/cover
+	go test ./... -test.coverprofile coverage.out
+	go tool cover -html=coverage.out
+
+build_local:
 	go build dccm.go
 
 build_all: build_linux build_windows build_osx

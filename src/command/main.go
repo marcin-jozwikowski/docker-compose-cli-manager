@@ -2,33 +2,44 @@ package command
 
 import (
 	dcm "docker-compose-manager/src/docker-compose-manager"
-	"fmt"
+	"errors"
 	"github.com/spf13/cobra"
-	"log"
-	"os"
+	"io"
 )
 
-var manager dcm.DockerComposeManagerInterface
-
-func InitCommands(managerInstance dcm.DockerComposeManagerInterface) {
-	manager = managerInstance
+type DockerComposeManagerInterface interface {
+	GetConfigFile() dcm.ConfigurationInterface
+	DockerComposeUp(files dcm.DockerComposeProject) error
+	DockerComposeStart(files dcm.DockerComposeProject) error
+	DockerComposeStop(files dcm.DockerComposeProject) error
+	DockerComposeDown(files dcm.DockerComposeProject) error
+	DockerComposeStatus(files dcm.DockerComposeProject) dcm.DockerComposeFileStatus
+	LocateFileInDirectory(dir string) (string, error)
+	GetFileInfoProvider() dcm.FileInfoProviderInterface
 }
 
-func getDcFilesFromCommandArguments(args []string) dcm.DockerComposeProject {
+var manager DockerComposeManagerInterface
+var mainWriter io.Writer
+
+func InitCommands(managerInstance DockerComposeManagerInterface, writer io.Writer) {
+	manager = managerInstance
+	mainWriter = writer
+}
+
+func getDcFilesFromCommandArguments(args []string) (dcm.DockerComposeProject, error) {
 	var dcFiles dcm.DockerComposeProject
 
 	switch len(args) {
 	case 0:
 		currDir, cdErr := manager.GetFileInfoProvider().GetCurrentDirectory()
 		if cdErr != nil {
-			log.Fatal(cdErr)
+			return nil, cdErr
 		}
 		dcFilePath, err := manager.LocateFileInDirectory(currDir)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(2)
+			return nil, err
 		}
-		dcmFile := dcm.Init(dcFilePath)
+		dcmFile := dcm.InitDockerComposeFile(dcFilePath)
 		dcFiles = append(dcFiles, dcmFile)
 		break
 
@@ -36,22 +47,19 @@ func getDcFilesFromCommandArguments(args []string) dcm.DockerComposeProject {
 		var err error
 		dcFiles, err = manager.GetConfigFile().GetDockerComposeFilesByProject(args[0])
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return nil, err
 		}
 		break
 
 	default:
-		fmt.Println("Provide only one project name")
-		os.Exit(2)
+		return nil, errors.New("provide only one project name")
 	}
 
 	if len(dcFiles) == 0 {
-		fmt.Println("No files to execute. Were all added to existing projects?")
-		os.Exit(2)
+		return nil, errors.New("no files to execute")
 	}
 
-	return dcFiles
+	return dcFiles, nil
 }
 
 func projectNamesAutocompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
@@ -61,8 +69,7 @@ func projectNamesAutocompletion(cmd *cobra.Command, args []string, toComplete st
 	projects, err := manager.GetConfigFile().GetDockerComposeProjectList(toComplete)
 
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return nil, cobra.ShellCompDirectiveNoFileComp
 	}
 
 	return projects, cobra.ShellCompDirectiveNoFileComp

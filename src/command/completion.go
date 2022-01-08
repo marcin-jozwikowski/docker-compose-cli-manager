@@ -1,8 +1,8 @@
 package command
 
 import (
+	"errors"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var completionCmd = &cobra.Command{
@@ -50,18 +50,18 @@ PowerShell:
 	DisableFlagsInUseLine: true,
 	ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
 	Args:                  cobra.ExactValidArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		switch args[0] {
 		case "bash":
-			_ = cmd.Root().GenBashCompletion(os.Stdout)
+			return cmd.Root().GenBashCompletion(mainWriter)
 		case "zsh":
-			_ = cmd.Root().GenZshCompletion(os.Stdout)
+			return cmd.Root().GenZshCompletion(mainWriter)
 		case "fish":
-			_ = cmd.Root().GenFishCompletion(os.Stdout, true)
+			return cmd.Root().GenFishCompletion(mainWriter, true)
 		case "powershell":
-			_ = cmd.Root().GenPowerShellCompletionWithDesc(os.Stdout)
+			return cmd.Root().GenPowerShellCompletionWithDesc(mainWriter)
 		default:
-			os.Exit(0)
+			return errors.New("invalid shell name provided: " + args[0])
 		}
 	},
 }

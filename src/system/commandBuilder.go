@@ -5,11 +5,6 @@ import (
 	"os/exec"
 )
 
-type commandBuilderInterface interface {
-	buildCommand(command string, args []string) executableCommand
-	buildInteractiveCommand(command string, args []string) executableCommand
-}
-
 type DefaultCommandBuilder struct {
 	IoIn  io.Reader
 	IoOut io.Writer
