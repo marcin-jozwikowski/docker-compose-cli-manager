@@ -13,9 +13,7 @@ Run `dccm completion --help` and follow instructions displayed for shell autocom
 ## Usage
 
 <p align="center">
-  <a href="https://terminalizer.com">
-    <img src="/docs/dccm-demo.gif?raw=true"/>
-  </a>
+    <img src="/docs/animated_gif/dccm-demo.gif?raw=true"/>
 </p>
 
 ## Usage details

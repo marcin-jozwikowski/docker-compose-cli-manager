@@ -156,7 +156,9 @@ records:
     content: d
   - delay: 432
     content: "\r\n"
-  - delay: 14
+  - delay: 460
+    content: "File '/home/mjozwikowski/test_project/docker-compose.yml' added to project 'test_project'\r\n"
+  - delay: 140
     content: "\e]0;mjozwikowski:~/test_project\e\\\e]7;file://G3/home/mjozwikowski/test_project\e\\\e]0;mjozwikowski: ~/test_project\a\e[01;32mmjozwikowski\e[00m:\e[01;34m~/test_project\e[01;31m\e[00m$ "
   - delay: 902
     content: d
@@ -252,6 +254,8 @@ records:
     content: 'additional.yml '
   - delay: 327
     content: "\r\n"
+  - delay: 460
+    content: "File '/home/mjozwikowski/test_project/docker-compose-additional.yml' added to project 'test_project'\r\n"
   - delay: 15
     content: "\e]0;mjozwikowski:~/test_project\e\\\e]7;file://G3/home/mjozwikowski/test_project\e\\\e]0;mjozwikowski: ~/test_project\a\e[01;32mmjozwikowski\e[00m:\e[01;34m~/test_project\e[01;31m\e[00m$ "
   - delay: 1037
