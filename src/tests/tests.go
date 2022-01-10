@@ -8,7 +8,7 @@ func AssertErrorEquals(t *testing.T, expected string, err error) {
 	}
 
 	if err.Error() != expected {
-		t.Errorf("Unexpected error. Expected %s, got %s", expected, err)
+		t.Errorf("Invalid error. Expected %s, got %s", expected, err)
 	}
 }
 
@@ -27,5 +27,11 @@ func AssertIntEquals(t *testing.T, expected, actual int, name string) {
 func AssertNil(t *testing.T, obj interface{}, description string) {
 	if obj != nil {
 		t.Errorf("Unexpected value in %s. Expected nil, got %+v", description, obj)
+	}
+}
+
+func AssertBooleanEquals(t *testing.T, expected bool, value bool, name string) {
+	if value != expected {
+		t.Errorf("Invalid %s. Expected %t got %t", name, expected, value)
 	}
 }

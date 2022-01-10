@@ -1,6 +1,8 @@
 package system
 
 import (
+	"docker-compose-manager/src/tests"
+	"errors"
 	"fmt"
 	"io/fs"
 	"math/rand"
@@ -56,23 +58,8 @@ func (f fakeOSInfoProvider) Base(dir string) string {
 	return f.filepath
 }
 
-func Test_FileInfoProvider_InitFileInfoProvider(t *testing.T) {
-	result := InitFileInfoProvider(fakeOSInfoProvider{
-		filepath: "testFile",
-		err:      nil,
-	})
-
-	if result == nil {
-		t.Error("Expected FileInfoProvider got nil")
-	}
-
-	switch result.(type) {
-	case FileInfoProviderInterface:
-		break
-
-	default:
-		t.Error("Invalid type. Expected FileInfoProvider")
-	}
+func (f fakeOSInfoProvider) MkdirAll(path string, mode os.FileMode) error {
+	return f.err
 }
 
 func TestFileInfoProvider_Expand_OnlyHomeDirectory(t *testing.T) {
@@ -83,9 +70,7 @@ func TestFileInfoProvider_Expand_OnlyHomeDirectory(t *testing.T) {
 
 	result := fip.Expand("~")
 
-	if result != "HOME" {
-		t.Error("Not valid Expand result. Expected HOME got " + result)
-	}
+	tests.AssertStringEquals(t, "HOME", result, "Not valid Expand result.")
 }
 
 func TestFileInfoProvider_Expand_HomeSubdirectory(t *testing.T) {
@@ -96,9 +81,7 @@ func TestFileInfoProvider_Expand_HomeSubdirectory(t *testing.T) {
 
 	result := fip.Expand("~/directory")
 
-	if result != "HOME/directory" {
-		t.Error("Not valid Expand result. Expected HOME/directory got " + result)
-	}
+	tests.AssertStringEquals(t, "HOME/directory", result, "Not valid Expand result.")
 }
 
 func TestFileInfoProvider_Expand_NotHomeSubdirectory(t *testing.T) {
@@ -109,9 +92,7 @@ func TestFileInfoProvider_Expand_NotHomeSubdirectory(t *testing.T) {
 
 	result := fip.Expand("/any/directory")
 
-	if result != "/any/directory" {
-		t.Error("Not valid Expand result. Expected HOME/directory got " + result)
-	}
+	tests.AssertStringEquals(t, "/any/directory", result, "Not valid Expand result.")
 }
 
 func TestFileInfoProvider_IsDir_True(t *testing.T) {
@@ -123,9 +104,7 @@ func TestFileInfoProvider_IsDir_True(t *testing.T) {
 
 	result := fip.IsDir("HOME")
 
-	if result != true {
-		t.Error("Invalid directory status. Expected true got false")
-	}
+	tests.AssertBooleanEquals(t, true, result, "directory status.")
 }
 
 func TestFileInfoProvider_IsDir_False(t *testing.T) {
@@ -137,9 +116,7 @@ func TestFileInfoProvider_IsDir_False(t *testing.T) {
 
 	result := fip.IsDir("HOME")
 
-	if result != false {
-		t.Error("Invalid directory status. Expected false got true")
-	}
+	tests.AssertBooleanEquals(t, false, result, "directory status.")
 }
 
 func TestFileInfoProvider_IsDir_Error(t *testing.T) {
@@ -150,9 +127,7 @@ func TestFileInfoProvider_IsDir_Error(t *testing.T) {
 
 	result := fip.IsDir("HOME")
 
-	if result != false {
-		t.Error("Invalid directory status on error. Expected false got true")
-	}
+	tests.AssertBooleanEquals(t, false, result, "directory status on error")
 }
 
 func TestFileInfoProvider_IsFile_True(t *testing.T) {
@@ -163,11 +138,7 @@ func TestFileInfoProvider_IsFile_True(t *testing.T) {
 
 	result := fip.IsFile("HOME")
 
-	fmt.Printf("%v", result)
-
-	if result != true {
-		t.Error("Invalid file status. Expected true got false")
-	}
+	tests.AssertBooleanEquals(t, true, result, "file status")
 }
 
 func TestFileInfoProvider_IsFile_False(t *testing.T) {
@@ -178,11 +149,7 @@ func TestFileInfoProvider_IsFile_False(t *testing.T) {
 
 	result := fip.IsFile("HOME")
 
-	fmt.Printf("%v", result)
-
-	if result != false {
-		t.Error("Invalid file status. Expected false got true")
-	}
+	tests.AssertBooleanEquals(t, false, result, "file status")
 }
 
 func TestFileInfoProvider_IsFile_Error(t *testing.T) {
@@ -194,11 +161,7 @@ func TestFileInfoProvider_IsFile_Error(t *testing.T) {
 
 	result := fip.IsFile("HOME")
 
-	fmt.Printf("%v", result)
-
-	if result != false {
-		t.Error("Invalid file status on error. Expected false got true")
-	}
+	tests.AssertBooleanEquals(t, false, result, "file status on error")
 }
 
 func TestFileInfoProvider_GetCurrentDirectory_Error(t *testing.T) {
@@ -209,9 +172,7 @@ func TestFileInfoProvider_GetCurrentDirectory_Error(t *testing.T) {
 
 	_, err := fip.GetCurrentDirectory()
 
-	if err == nil {
-		t.Error("Expected error. Got none.")
-	}
+	tests.AssertErrorEquals(t, "error locating current directory", err)
 }
 
 func TestFileInfoProvider_GetCurrentDirectory(t *testing.T) {
@@ -222,13 +183,8 @@ func TestFileInfoProvider_GetCurrentDirectory(t *testing.T) {
 
 	result, err := fip.GetCurrentDirectory()
 
-	if err != nil {
-		t.Error("Unexpected error.")
-	}
-
-	if result != "HOME" {
-		t.Error("Expected current directory to be HOME. Got " + result)
-	}
+	tests.AssertNil(t, err, "TestFileInfoProvider_GetCurrentDirectory")
+	tests.AssertStringEquals(t, "HOME", result, "current directory")
 }
 
 func TestFileInfoProvider_GetDirectoryName(t *testing.T) {
@@ -238,7 +194,49 @@ func TestFileInfoProvider_GetDirectoryName(t *testing.T) {
 
 	result := fip.GetDirectoryName("")
 
-	if result != "HOME" {
-		t.Error("Expected directory name to be HOME. Got " + result)
-	}
+	tests.AssertStringEquals(t, "HOME", result, "current directory")
+}
+
+func TestFileInfoProvider_UserHomeDir(t *testing.T) {
+	fip := InitFileInfoProvider(fakeOSInfoProvider{
+		filepath: "HOME",
+		err:      nil,
+	})
+
+	result, err := fip.UserHomeDir()
+
+	tests.AssertNil(t, err, "TestFileInfoProvider_UserHomeDir")
+	tests.AssertStringEquals(t, "HOME", result, "user home directory")
+}
+
+func TestFileInfoProvider_UserHomeDirError(t *testing.T) {
+	fip := InitFileInfoProvider(fakeOSInfoProvider{
+		filepath: "HOME",
+		err:      errors.New("home dir error"),
+	})
+
+	result, err := fip.UserHomeDir()
+
+	tests.AssertStringEquals(t, "HOME", result, "user home directory")
+	tests.AssertErrorEquals(t, "home dir error", err)
+}
+
+func TestFileInfoProvider_MkdirAllError(t *testing.T) {
+	fip := InitFileInfoProvider(fakeOSInfoProvider{
+		err: errors.New("MkdirAll error"),
+	})
+
+	err := fip.MkdirAll("", 0755)
+
+	tests.AssertErrorEquals(t, "MkdirAll error", err)
+}
+
+func TestFileInfoProvider_MkdirAll(t *testing.T) {
+	fip := InitFileInfoProvider(fakeOSInfoProvider{
+		err: nil,
+	})
+
+	err := fip.MkdirAll("", 0755)
+
+	tests.AssertNil(t, err, "MkdirAll")
 }

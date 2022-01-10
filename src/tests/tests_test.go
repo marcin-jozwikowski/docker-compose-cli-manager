@@ -20,3 +20,7 @@ func TestAssertNil(t *testing.T) {
 func TestAssertStringEquals(t *testing.T) {
 	AssertStringEquals(t, "test", "test", "Testing test")
 }
+
+func TestAssertBooleanEquals(t *testing.T) {
+	AssertBooleanEquals(t, true, true, "Testing bool")
+}
