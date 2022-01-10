@@ -56,3 +56,19 @@ func TestDefaultOSInfoProvider_UserHomeDir(t *testing.T) {
 		t.Errorf("Invalid user home directory. Expected %s got %s", expected, result)
 	}
 }
+
+func TestDefaultOSInfoProvider_MkdirAll(t *testing.T) {
+	doip := DefaultOSInfoProvider{}
+	dir := os.TempDir() + string(os.PathSeparator) + "directory" + string(os.PathSeparator)
+	dirExp := os.TempDir() + string(os.PathSeparator) + "directory2" + string(os.PathSeparator)
+
+	defer os.Remove(dir)
+	defer os.Remove(dirExp)
+
+	result := doip.MkdirAll(dir, 0755)
+	expected := os.MkdirAll(dirExp, 0755)
+
+	if result != expected {
+		t.Errorf("Invalid MkdirAll result. Expected %s got %s", expected, result)
+	}
+}

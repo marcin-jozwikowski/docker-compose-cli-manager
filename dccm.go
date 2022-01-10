@@ -5,46 +5,43 @@ import (
 	"docker-compose-manager/src/config"
 	docker_compose_manager "docker-compose-manager/src/docker-compose-manager"
 	"docker-compose-manager/src/system"
-	"fmt"
+	"log"
 	"os"
 )
+
+var fileInfoProvider = system.InitFileInfoProvider(system.DefaultOSInfoProvider{})
+var commandRunner = system.InitCommandExecutioner(system.DefaultCommandBuilder{
+	IoIn:  os.Stdin,
+	IoOut: os.Stdout,
+	IoErr: os.Stderr,
+})
 
 func main() {
 	configFilePath, cfpError := getConfigFilePath()
 	if cfpError != nil {
-		fmt.Println(cfpError)
-		os.Exit(1)
+		log.Fatal(cfpError)
 	}
 	cFile, cFileError := config.InitializeBoltConfig(configFilePath)
 	if cfpError != nil {
-		fmt.Println(cFileError)
-		os.Exit(1)
+		log.Fatal(cFileError)
 	}
-
-	commandRunner := system.InitCommandExecutioner(system.DefaultCommandBuilder{
-		IoIn:  os.Stdin,
-		IoOut: os.Stdout,
-		IoErr: os.Stderr,
-	})
-
-	fileInfoProvider := system.InitFileInfoProvider(system.DefaultOSInfoProvider{})
 
 	dockerManager := docker_compose_manager.InitDockerComposeManager(&cFile, commandRunner, fileInfoProvider)
 	command.InitCommands(&dockerManager, os.Stdout)
 
 	cmdErr := command.RootCommand.Execute()
 	if cmdErr != nil {
-		panic(cmdErr)
+		log.Fatal(cmdErr)
 	}
 }
 
 func getConfigFilePath() (string, error) {
-	dirname, err := os.UserHomeDir()
+	dirname, err := fileInfoProvider.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
 	filePathDir := dirname + string(os.PathSeparator) + ".dccm"
-	err = os.MkdirAll(filePathDir, 0755)
+	err = fileInfoProvider.MkdirAll(filePathDir, 0755)
 	if err != nil {
 		return "", err
 	}

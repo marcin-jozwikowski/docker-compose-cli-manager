@@ -5,13 +5,6 @@ import (
 	"path/filepath"
 )
 
-type OSInfoProviderInterface interface {
-	UserHomeDir() (string, error)
-	Stat(name string) (os.FileInfo, error)
-	CurrentDirectory() (string, error)
-	Base(dir string) string
-}
-
 type DefaultOSInfoProvider struct{}
 
 func (o DefaultOSInfoProvider) UserHomeDir() (string, error) {
@@ -28,4 +21,8 @@ func (o DefaultOSInfoProvider) CurrentDirectory() (string, error) {
 
 func (o DefaultOSInfoProvider) Base(dir string) string {
 	return filepath.Base(dir)
+}
+
+func (o DefaultOSInfoProvider) MkdirAll(path string, mode os.FileMode) error {
+	return os.MkdirAll(path, mode)
 }

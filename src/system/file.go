@@ -2,24 +2,25 @@ package system
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 )
 
-type FileInfoProviderInterface interface {
-	GetDirectoryName(dir string) string
-	GetCurrentDirectory() (string, error)
-	Expand(path string) string
-	IsDir(path string) bool
-	IsFile(path string) bool
+type OSInfoProviderInterface interface {
+	UserHomeDir() (string, error)
+	Stat(name string) (os.FileInfo, error)
+	CurrentDirectory() (string, error)
+	Base(dir string) string
+	MkdirAll(path string, mode os.FileMode) error
 }
 
 type FileInfoProvider struct {
 	osInfoProvider OSInfoProviderInterface
 }
 
-func InitFileInfoProvider(providerInterface OSInfoProviderInterface) FileInfoProviderInterface {
-	return &FileInfoProvider{osInfoProvider: providerInterface}
+func InitFileInfoProvider(providerInterface OSInfoProviderInterface) FileInfoProvider {
+	return FileInfoProvider{osInfoProvider: providerInterface}
 }
 
 func (f FileInfoProvider) Expand(path string) string {
@@ -61,4 +62,12 @@ func (f FileInfoProvider) GetCurrentDirectory() (string, error) {
 
 func (f FileInfoProvider) GetDirectoryName(dir string) string {
 	return f.osInfoProvider.Base(dir)
+}
+
+func (f FileInfoProvider) UserHomeDir() (string, error) {
+	return f.osInfoProvider.UserHomeDir()
+}
+
+func (f FileInfoProvider) MkdirAll(path string, mode os.FileMode) error {
+	return f.osInfoProvider.MkdirAll(path, mode)
 }
