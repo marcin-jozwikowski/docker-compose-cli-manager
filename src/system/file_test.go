@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"syscall"
 	"testing"
 	"time"
@@ -75,13 +76,25 @@ func TestFileInfoProvider_Expand_OnlyHomeDirectory(t *testing.T) {
 
 func TestFileInfoProvider_Expand_HomeSubdirectory(t *testing.T) {
 	fip := InitFileInfoProvider(fakeOSInfoProvider{
-		filepath: "HOME",
+		filepath: "/HOME",
 		err:      nil,
 	})
 
 	result := fip.Expand("~/directory")
 
-	tests.AssertStringEquals(t, "HOME/directory", result, "Not valid Expand result.")
+	tests.AssertStringEquals(t, "/HOME/directory", result, "Not valid Expand result.")
+}
+
+func TestFileInfoProvider_Expand_AnyRelative(t *testing.T) {
+	fip := InitFileInfoProvider(fakeOSInfoProvider{
+		filepath: "relative/path",
+		err:      nil,
+	})
+
+	result := fip.Expand("~/directory")
+
+	expected, _ := filepath.Abs("relative/path/directory")
+	tests.AssertStringEquals(t, expected, result, "Not valid AnyRelative Expand result.")
 }
 
 func TestFileInfoProvider_Expand_NotHomeSubdirectory(t *testing.T) {

@@ -230,18 +230,6 @@ records:
     content: t
   - delay: 265
     content: ' '
-  - delay: 284
-    content: '~'
-  - delay: 240
-    content: /
-  - delay: 312
-    content: t
-  - delay: 96
-    content: e
-  - delay: 232
-    content: s
-  - delay: 215
-    content: t_project/
   - delay: 377
     content: d
   - delay: 120

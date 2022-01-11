@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -88,7 +88,7 @@ func (d *DockerComposeManager) DockerComposeStatus(files DockerComposeProject) D
 
 func (d *DockerComposeManager) LocateFileInDirectory(dir string) (string, error) {
 	// Generate docker-compose.yml path
-	dcFilePath := dir + string(os.PathSeparator) + DefaultDockerFileName
+	dcFilePath := filepath.Join(dir, DefaultDockerFileName)
 	if d.fileInfoProvider.IsFile(dcFilePath) {
 		return dcFilePath, nil
 	}

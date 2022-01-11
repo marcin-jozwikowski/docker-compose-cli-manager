@@ -28,9 +28,9 @@ func (f FileInfoProvider) Expand(path string) string {
 	if path == "~" {
 		return homeDir
 	} else if strings.HasPrefix(path, "~/") {
-		return filepath.Join(homeDir, path[2:])
+		path = filepath.Join(homeDir, path[2:])
 	}
-
+	path, _ = filepath.Abs(path)
 	return path
 }
 
