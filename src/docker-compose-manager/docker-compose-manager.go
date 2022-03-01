@@ -98,17 +98,14 @@ func (d *DockerComposeManager) LocateFileInDirectory(dir string) (string, error)
 }
 
 func (d *DockerComposeManager) getRunningServicesCount(files DockerComposeProject) (int, int, error) {
-	result, runningError := d.runCommandForResult("ps", files, []string{})
+	bufReader, runningError := d.getRunningServices(files)
 	if runningError != nil {
-		return 0, 0, runningError
+		return 0,0, runningError
 	}
-	bytesReader := bytes.NewReader(result)
-	bufReader := bufio.NewReader(bytesReader)
-	_, _, _ = bufReader.ReadLine()
-	_, _, _ = bufReader.ReadLine()
 	totalCount := 0
 	upCount := 0
-	for true {
+
+	for {
 		lineBytes, _, err := bufReader.ReadLine()
 		if err != nil {
 			break
@@ -129,6 +126,20 @@ func (d *DockerComposeManager) getRunningServicesCount(files DockerComposeProjec
 	}
 
 	return totalCount, upCount, nil
+}
+
+func (d *DockerComposeManager) getRunningServices(files DockerComposeProject) (*bufio.Reader, error) {
+	result, runningError := d.runCommandForResult("ps", files, []string{})
+	if runningError != nil {
+		return nil, runningError
+	}
+
+	bytesReader := bytes.NewReader(result)
+	bufReader := bufio.NewReader(bytesReader)
+	_, _, _ = bufReader.ReadLine()
+	_, _, _ = bufReader.ReadLine()
+
+	return bufReader, nil
 }
 
 func (d *DockerComposeManager) runCommand(command string, files DockerComposeProject, arguments []string) error {
