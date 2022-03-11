@@ -3,11 +3,13 @@ package config
 import (
 	"bytes"
 	dcf "docker-compose-manager/src/docker-compose-manager"
+	"errors"
 	"fmt"
-	bolt "go.etcd.io/bbolt"
 	"log"
 	"os"
 	"strconv"
+
+	bolt "go.etcd.io/bbolt"
 )
 
 type BoltConfigStorage struct {
@@ -33,6 +35,9 @@ func InitializeBoltConfig(path string) (BoltConfigStorage, error) {
 var bucketNameProjects = []byte("Projects")
 var bucketNameFiles = []byte("Files")
 var bucketKeyFileName = []byte("fileName")
+var bucketNameProjectConfig = []byte("projectConfig")
+var bucketKeyContainerName = []byte("containerName")
+var bucketKeyCommand = []byte("command")
 
 func (c *BoltConfigStorage) AddDockerComposeFile(file, projectName string) error {
 	db := c.openDB()
@@ -95,6 +100,31 @@ func (c *BoltConfigStorage) GetDockerComposeFilesByProject(projectName string) (
 	}
 
 	return result, nil
+}
+
+func (c *BoltConfigStorage) GetExecConfigByProject(projectName string) (dcf.ProjectExecConfig, error) {
+	var result dcf.ProjectExecConfig
+
+	db := c.openDB()
+	defer closeDB(db)
+
+	err := db.View(func(tx *bolt.Tx) error {
+		projects := tx.Bucket(bucketNameProjects)
+		project := projects.Bucket([]byte(projectName))
+		config := project.Bucket([]byte(bucketNameProjectConfig))
+
+		if config == nil {
+			return errors.New("no config found")
+		}
+		name := string(config.Get(bucketKeyContainerName))
+		command := string(config.Get(bucketKeyCommand))
+
+		result = dcf.InitProjectExecConfig(name, command)
+
+		return nil
+	})
+
+	return result, err
 }
 
 func (c *BoltConfigStorage) GetDockerComposeProjectList(projectNamePrefix string) ([]string, error) {

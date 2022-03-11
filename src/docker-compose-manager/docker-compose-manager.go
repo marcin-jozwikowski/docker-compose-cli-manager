@@ -12,6 +12,7 @@ type ConfigurationInterface interface {
 	AddDockerComposeFile(file, projectName string) error
 	GetDockerComposeFilesByProject(projectName string) (DockerComposeProject, error)
 	GetDockerComposeProjectList(projectNamePrefix string) ([]string, error)
+	GetExecConfigByProject(projectName string) (ProjectExecConfig, error)
 	DeleteProjectByName(name string) error
 }
 
@@ -48,6 +49,10 @@ func (d *DockerComposeManager) GetFileInfoProvider() FileInfoProviderInterface {
 
 func (d *DockerComposeManager) GetConfigFile() ConfigurationInterface {
 	return d.configFile
+}
+
+func (d *DockerComposeManager) DockerComposeExec(files DockerComposeProject, params ProjectExecConfigInterface) error {
+	return d.runCommand("exec", files, []string{params.GetContainerName(), params.GetCommand()})
 }
 
 func (d *DockerComposeManager) DockerComposeUp(files DockerComposeProject) error {

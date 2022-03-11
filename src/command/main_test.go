@@ -30,6 +30,10 @@ var resultGetDockerComposeProjectListError error
 var resultDeleteProjectByNameError error
 var argumentDeleteProjectByName string
 
+var argumentGetExecConfigByProject string
+var resultGetExecConfigByProjectContainer string
+var resultGetExecConfigByProjectCommand string
+
 func (f fakeConfiguration) AddDockerComposeFile(file, projectName string) error {
 	return resultAddDockerComposeError
 }
@@ -45,6 +49,11 @@ func (f fakeConfiguration) GetDockerComposeProjectList(projectNamePrefix string)
 func (f fakeConfiguration) DeleteProjectByName(name string) error {
 	argumentDeleteProjectByName = name
 	return resultDeleteProjectByNameError
+}
+
+func (f fakeConfiguration) GetExecConfigByProject(projectName string) (docker_compose_manager.ProjectExecConfig, error){
+	argumentGetExecConfigByProject = projectName
+	return docker_compose_manager.InitProjectExecConfig(resultGetExecConfigByProjectContainer, resultGetExecConfigByProjectCommand), nil
 }
 
 type fakeFileInfoProvider struct {
@@ -89,9 +98,19 @@ var resultDockerComposeStop error
 var argumentDockerComposeDown docker_compose_manager.DockerComposeProject
 var resultDockerComposeDown error
 var resultDockerComposeStatus docker_compose_manager.DockerComposeFileStatus
+var argumentDockerComposeExec docker_compose_manager.ProjectExecConfigInterface
+var argumentDockerComposeExecFiles docker_compose_manager.DockerComposeProject
+var resultDockerComposeExec error
+
 
 func (f fakeManager) GetConfigFile() docker_compose_manager.ConfigurationInterface {
 	return fakeConfiguration{}
+}
+
+func (f fakeManager) DockerComposeExec(files docker_compose_manager.DockerComposeProject, params docker_compose_manager.ProjectExecConfigInterface) error {
+	argumentDockerComposeExec = params
+	argumentDockerComposeExecFiles = files
+	return resultDockerComposeExec
 }
 
 func (f fakeManager) DockerComposeUp(files docker_compose_manager.DockerComposeProject) error {

@@ -24,6 +24,10 @@ var argumentGetDockerComposeProjectListProjectNamePrefix string
 var resultDeleteProjectByNameError error
 var argumentDeleteProjectByNameName string
 
+var argumentGetExecConfigByProject string
+var resultGetExecConfigByProjectContainer string
+var resultGetExecConfigByProjectCommand string
+
 func (f fakeConfiguration) AddDockerComposeFile(file, projectName string) error {
 	argumentAddDockerComposeFileFile = file
 	argumentAddDockerComposeFileProjectName = projectName
@@ -43,6 +47,12 @@ func (f fakeConfiguration) GetDockerComposeProjectList(projectNamePrefix string)
 func (f fakeConfiguration) DeleteProjectByName(name string) error {
 	argumentDeleteProjectByNameName = name
 	return resultDeleteProjectByNameError
+}
+
+
+func (f fakeConfiguration) GetExecConfigByProject(projectName string) (ProjectExecConfig, error){
+	argumentGetExecConfigByProject = projectName
+	return InitProjectExecConfig(resultGetExecConfigByProjectContainer, resultGetExecConfigByProjectCommand), nil
 }
 
 type fakeCommandExecutioner struct {
