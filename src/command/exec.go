@@ -21,10 +21,15 @@ var execCommand = &cobra.Command{
 			return errors.New("could not find the project " + args[0])
 		}
 
-
-		if len(args) == 3 {
+		if len(args) == 1 {
+			config, configErr := manager.GetConfigFile().GetExecConfigByProject(args[0])
+			if configErr != nil {
+				return errors.New("could not find exec configuration for " + args[0])
+			}
+			return manager.DockerComposeExec(pFiles, config)
+		} else if len(args) == 3 {
 			config = docker_compose_manager.InitProjectExecConfig(args[1], args[2])
-			//manager.SaveExecConfig(config, args[0])
+			manager.GetConfigFile().SaveExecConfig(config, args[0])
 			return manager.DockerComposeExec(pFiles, config)
 		}
 

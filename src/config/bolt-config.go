@@ -127,6 +127,22 @@ func (c *BoltConfigStorage) GetExecConfigByProject(projectName string) (dcf.Proj
 	return result, err
 }
 
+func (c *BoltConfigStorage) SaveExecConfig(execConfig dcf.ProjectExecConfigInterface, projectName string) error {
+	db := c.openDB()
+	defer closeDB(db)
+
+	return db.Update(func(tx *bolt.Tx) error {
+		projects := tx.Bucket(bucketNameProjects)
+		project := projects.Bucket([]byte(projectName))
+		config, _ := project.CreateBucketIfNotExists([]byte(bucketNameProjectConfig))
+
+		config.Put(bucketKeyContainerName, []byte(execConfig.GetContainerName()))
+		config.Put(bucketKeyCommand, []byte(execConfig.GetCommand()))
+
+		return nil
+	})
+}
+
 func (c *BoltConfigStorage) GetDockerComposeProjectList(projectNamePrefix string) ([]string, error) {
 	db := c.openDB()
 	defer closeDB(db)

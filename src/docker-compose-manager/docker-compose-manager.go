@@ -13,6 +13,7 @@ type ConfigurationInterface interface {
 	GetDockerComposeFilesByProject(projectName string) (DockerComposeProject, error)
 	GetDockerComposeProjectList(projectNamePrefix string) ([]string, error)
 	GetExecConfigByProject(projectName string) (ProjectExecConfig, error)
+	SaveExecConfig(ProjectExecConfigInterface, string) error
 	DeleteProjectByName(name string) error
 }
 
