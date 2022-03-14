@@ -31,8 +31,12 @@ var resultDeleteProjectByNameError error
 var argumentDeleteProjectByName string
 
 var argumentGetExecConfigByProject string
-var resultGetExecConfigByProjectContainer string
-var resultGetExecConfigByProjectCommand string
+var resultGetExecConfigByProjectConfig docker_compose_manager.ProjectExecConfig
+var resultGetExecConfigByProjectError error
+
+var argumentSaveExecConfigConfig docker_compose_manager.ProjectExecConfigInterface 
+var argumentSaveExecConfigString string
+var resultSaveExecConfig error
 
 func (f fakeConfiguration) AddDockerComposeFile(file, projectName string) error {
 	return resultAddDockerComposeError
@@ -53,7 +57,13 @@ func (f fakeConfiguration) DeleteProjectByName(name string) error {
 
 func (f fakeConfiguration) GetExecConfigByProject(projectName string) (docker_compose_manager.ProjectExecConfig, error){
 	argumentGetExecConfigByProject = projectName
-	return docker_compose_manager.InitProjectExecConfig(resultGetExecConfigByProjectContainer, resultGetExecConfigByProjectCommand), nil
+	return resultGetExecConfigByProjectConfig, resultGetExecConfigByProjectError
+}
+
+func (f fakeConfiguration) SaveExecConfig(config docker_compose_manager.ProjectExecConfigInterface, projectName string) error {
+	argumentSaveExecConfigConfig = config
+	argumentSaveExecConfigString = projectName
+	return resultSaveExecConfig
 }
 
 type fakeFileInfoProvider struct {
@@ -178,6 +188,9 @@ func setupTest() {
 	argumentDockerComposeDown = nil
 	resultDockerComposeDown = nil
 	resultDockerComposeStatus = docker_compose_manager.DcfStatusUnknown
+	resultGetExecConfigByProjectError = nil
+	resultGetExecConfigByProjectConfig = docker_compose_manager.InitProjectExecConfig("","")
+	resultDockerComposeExec = nil
 
 	noArguments = []string{}
 	oneArgument = []string{"firstArg"}

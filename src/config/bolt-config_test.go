@@ -1,10 +1,13 @@
 package config
 
 import (
-	bolt "go.etcd.io/bbolt"
+	docker_compose_manager "docker-compose-manager/src/docker-compose-manager"
+	"docker-compose-manager/src/tests"
 	"io/ioutil"
 	"os"
 	"testing"
+
+	bolt "go.etcd.io/bbolt"
 )
 
 func TestInitializeBoltConfig(t *testing.T) {
@@ -177,6 +180,87 @@ func TestBoltConfigStorage_DeleteProjectByName(t *testing.T) {
 	if len(projectList) != 0 {
 		t.Errorf("Invalid project list count. Expected %d, got %d", 0, len(projectList))
 	}
+
+	_ = os.Remove(fileName.Name())
+}
+
+func TestBoltConfigStorage_SaveExecConfig_ForNonExistingProject(t *testing.T) {
+	fileName, _ := ioutil.TempFile(os.TempDir(), "db-")
+	db, _ := InitializeBoltConfig(fileName.Name())
+
+	config := docker_compose_manager.InitProjectExecConfig("container", "command")
+	db.SaveExecConfig(config, "aProjectName")
+
+	conn := db.openDB()
+	defer closeDB(conn)
+
+
+	conn.View(func(tx *bolt.Tx) error {
+		projects := tx.Bucket(bucketNameProjects)
+		project := projects.Bucket([]byte("aProjectName"))
+		config := project.Bucket([]byte(bucketNameProjectConfig))
+		
+		tests.AssertStringEquals(t, "container", string(config.Get(bucketKeyContainerName)), "Container name string")
+		tests.AssertStringEquals(t, "command", string(config.Get(bucketKeyCommand)), "Command string")
+
+		return nil
+	})
+	
+	_ = os.Remove(fileName.Name())
+}
+
+func TestBoltConfigStorage_SaveExecConfig_ForExistingProject(t *testing.T) {
+	fileName, _ := ioutil.TempFile(os.TempDir(), "db-")
+	db, _ := InitializeBoltConfig(fileName.Name())
+	db.AddDockerComposeFile("fileName", "aProjectName")
+
+	config := docker_compose_manager.InitProjectExecConfig("container", "command")
+	db.SaveExecConfig(config, "aProjectName")
+
+	conn := db.openDB()
+	defer closeDB(conn)
+
+
+	conn.View(func(tx *bolt.Tx) error {
+		projects := tx.Bucket(bucketNameProjects)
+		project := projects.Bucket([]byte("aProjectName"))
+		config := project.Bucket([]byte(bucketNameProjectConfig))
+		
+		tests.AssertStringEquals(t, "container", string(config.Get(bucketKeyContainerName)), "Container name string")
+		tests.AssertStringEquals(t, "command", string(config.Get(bucketKeyCommand)), "Command string")
+
+		return nil
+	})
+	
+	_ = os.Remove(fileName.Name())
+}
+
+func TestBoltConfigStorage_GetExecConfigByProjectForEmptyExistingProject(t *testing.T) {
+	fileName, _ := ioutil.TempFile(os.TempDir(), "db-")
+	db, _ := InitializeBoltConfig(fileName.Name())
+	_ = db.AddDockerComposeFile("aFileName", "aProjectName")
+
+	_, err := db.GetExecConfigByProject("aProjectName")
+
+	tests.AssertErrorEquals(t, "no config found", err)
+
+	_ = os.Remove(fileName.Name())
+}
+
+
+func TestBoltConfigStorage_GetExecConfigByProject(t *testing.T) {
+	fileName, _ := ioutil.TempFile(os.TempDir(), "db-")
+	db, _ := InitializeBoltConfig(fileName.Name())
+	_ = db.AddDockerComposeFile("aFileName", "aProjectName")
+	config := docker_compose_manager.InitProjectExecConfig("container", "command")
+	db.SaveExecConfig(config, "aProjectName")
+
+	configEntry, err := db.GetExecConfigByProject("aProjectName")
+
+	tests.AssertNil(t, err, "config retrieval error")
+
+	tests.AssertStringEquals(t, "container", configEntry.GetContainerName(), "container name")
+	tests.AssertStringEquals(t, "command", configEntry.GetCommand(), "command")
 
 	_ = os.Remove(fileName.Name())
 }

@@ -133,7 +133,7 @@ func (c *BoltConfigStorage) SaveExecConfig(execConfig dcf.ProjectExecConfigInter
 
 	return db.Update(func(tx *bolt.Tx) error {
 		projects := tx.Bucket(bucketNameProjects)
-		project := projects.Bucket([]byte(projectName))
+		project, _ := projects.CreateBucketIfNotExists([]byte(projectName))
 		config, _ := project.CreateBucketIfNotExists([]byte(bucketNameProjectConfig))
 
 		config.Put(bucketKeyContainerName, []byte(execConfig.GetContainerName()))
