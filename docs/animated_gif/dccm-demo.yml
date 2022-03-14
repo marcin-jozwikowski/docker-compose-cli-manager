@@ -111,7 +111,7 @@ config:
 # Records, feel free to edit them
 records:
   - delay: 393
-    content: "\e]0;mjozwikowski:~/test_project\e\\\e]7;file://G3/home/mjozwikowski/test_project\e\\\e]0;mjozwikowski: ~/test_project\a\e[01;32mmjozwikowski\e[00m:\e[01;34m~/test_project\e[01;31m\e[00m$ "
+    content: "\e]0;mjozwikowski: ~/test_project\a\e[01;32mmjozwikowski\e[00m:\e[01;34m~/test_project\e[01;31m\e[00m$ "
   - delay: 829
     content: d
   - delay: 264
@@ -330,6 +330,84 @@ records:
     content: "\r\n"
   - delay: 445
     content: "\t test_project --> Running \r\n\e]0;mjozwikowski:~/test_project\e\\\e]7;file://G3/home/mjozwikowski/test_project\e\\\e]0;mjozwikowski: ~/test_project\a\e[01;32mmjozwikowski\e[00m:\e[01;34m~/test_project\e[01;31m\e[00m$ "
+  - delay: 280
+    content: "\r\n"
+  - delay: 461
+    content: "\e]0;mjozwikowski:~/test_project\e\\\e]7;file://G3/home/mjozwikowski/test_project\e\\\e]0;mjozwikowski: ~/test_project\a\e[01;32mmjozwikowski\e[00m:\e[01;34m~/test_project\e[01;31m\e[00m$ "
+  - delay: 131
+    content: d
+  - delay: 192
+    content: c
+  - delay: 139
+    content: c
+  - delay: 177
+    content: m
+  - delay: 208
+    content: ' '
+  - delay: 585
+    content: e
+  - delay: 223
+    content: x
+  - delay: 72
+    content: e
+  - delay: 174
+    content: 'c '
+  - delay: 522
+    content: t
+  - delay: 112
+    content: e
+  - delay: 215
+    content: 'st_project '
+  - delay: 377
+    content: p
+  - delay: 208
+    content: h
+  - delay: 160
+    content: p
+  - delay: 152
+    content: ' '
+  - delay: 480
+    content: b
+  - delay: 112
+    content: a
+  - delay: 104
+    content: s
+  - delay: 175
+    content: h
+  - delay: 356
+    content: "\r\n"
+  - delay: 288
+    content: "root@afce982c1b27:/var/www/html# \r\e[Kroot@afce982c1b27:/var/www/html# "
+  - delay: 628
+    content: p
+  - delay: 200
+    content: h
+  - delay: 118
+    content: p
+  - delay: 256
+    content: ' '
+  - delay: 218
+    content: '-'
+  - delay: 176
+    content: v
+  - delay: 644
+    content: "\r\n"
+  - delay: 66
+    content: "PHP 8.0.8 (cli) (built: Jul  1 2021 22:40:15) ( NTS )\r\nCopyright (c) The PHP Group\r\nZend Engine v4.0.8, Copyright (c) Zend Technologies\r\n    with Zend OPcache v8.0.8, Copyright (c), by Zend Technologies\r\n    with Xdebug v3.0.4, Copyright (c) 2002-2021, by Derick Rethans\r\n"
+  - delay: 17
+    content: 'root@afce982c1b27:/var/www/html# '
+  - delay: 827
+    content: e
+  - delay: 177
+    content: x
+  - delay: 192
+    content: i
+  - delay: 128
+    content: t
+  - delay: 432
+    content: "\r\nexit\r\n"
+  - delay: 85
+    content: "\e]0;mjozwikowski:~/test_project\e\\\e]7;file://G3/home/mjozwikowski/test_project\e\\\e]0;mjozwikowski: ~/test_project\a\e[01;32mmjozwikowski\e[00m:\e[01;34m~/test_project\e[01;31m\e[00m$ "  
   - delay: 639
     content: d
   - delay: 184

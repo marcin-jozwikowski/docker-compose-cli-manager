@@ -10,6 +10,14 @@ tests_coverage:
 	go test ./... -test.coverprofile coverage.out
 	go tool cover -html=coverage.out
 
+record_gif:
+	cd docs/animated_gif
+	npm install --local
+	./node_modules/terminalizer/bin/app.js record dccm-demo-new.yml
+
+render_gif:
+	./node_modules/terminalizer/bin/app.js render dccm-demo-new.yml -o demo2.gif
+
 build_local:
 	go build dccm.go
 
