@@ -1,6 +1,7 @@
 package docker_compose_manager
 
 import (
+	"docker-compose-manager/src/tests"
 	"errors"
 	"math/rand"
 	"testing"
@@ -24,6 +25,14 @@ var argumentGetDockerComposeProjectListProjectNamePrefix string
 var resultDeleteProjectByNameError error
 var argumentDeleteProjectByNameName string
 
+var argumentGetExecConfigByProject string
+var resultGetExecConfigByProjectContainer string
+var resultGetExecConfigByProjectCommand string
+
+var argumentSaveExecConfigConfig ProjectExecConfigInterface 
+var argumentSaveExecConfigString string
+var resultSaveExecConfig error
+
 func (f fakeConfiguration) AddDockerComposeFile(file, projectName string) error {
 	argumentAddDockerComposeFileFile = file
 	argumentAddDockerComposeFileProjectName = projectName
@@ -43,6 +52,17 @@ func (f fakeConfiguration) GetDockerComposeProjectList(projectNamePrefix string)
 func (f fakeConfiguration) DeleteProjectByName(name string) error {
 	argumentDeleteProjectByNameName = name
 	return resultDeleteProjectByNameError
+}
+
+func (f fakeConfiguration) GetExecConfigByProject(projectName string) (ProjectExecConfig, error){
+	argumentGetExecConfigByProject = projectName
+	return InitProjectExecConfig(resultGetExecConfigByProjectContainer, resultGetExecConfigByProjectCommand), nil
+}
+
+func (f fakeConfiguration) SaveExecConfig(config ProjectExecConfigInterface, projectName string) error {
+	argumentSaveExecConfigConfig = config
+	argumentSaveExecConfigString = projectName
+	return resultSaveExecConfig
 }
 
 type fakeCommandExecutioner struct {
@@ -571,4 +591,25 @@ func checkAllDefaultArguments(t *testing.T, arguments []string) {
 	if arguments[6] != "arg2" {
 		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 7, "arg2", arguments[6])
 	}
+}
+
+func TestDockerComposeManager_DockerComposeExec(t *testing.T) {
+	config := InitProjectExecConfig("containerName", "aCommand")
+	dcm, project, _ := createDefaultObjects()
+
+	resultRunCommandError = nil
+	dcm.DockerComposeExec(project, config)
+
+	tests.AssertStringEquals(t, argumentRunCommandCommand, "docker-compose", "TestDockerComposeManager_DockerComposeExec_command")
+	if (len(argumentRunCommandArgs) != 7) {
+		t.Errorf("Invalid TestDockerComposeManager_DockerComposeExec argument count. Expected %d, got %d", 7, len(argumentRunCommandArgs))
+	}
+
+	tests.AssertStringEquals(t, "-f", argumentRunCommandArgs[0], "Argument 0")
+	tests.AssertStringEquals(t, "aFileName", argumentRunCommandArgs[1], "Argument 1")
+	tests.AssertStringEquals(t, "-f", argumentRunCommandArgs[2], "Argument 2")
+	tests.AssertStringEquals(t, "aFileName2", argumentRunCommandArgs[3], "Argument 3")
+	tests.AssertStringEquals(t, "exec", argumentRunCommandArgs[4], "Argument 4")
+	tests.AssertStringEquals(t, "containerName", argumentRunCommandArgs[5], "Argument 5")
+	tests.AssertStringEquals(t, "aCommand", argumentRunCommandArgs[6], "Argument 6")
 }

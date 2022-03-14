@@ -12,6 +12,8 @@ type ConfigurationInterface interface {
 	AddDockerComposeFile(file, projectName string) error
 	GetDockerComposeFilesByProject(projectName string) (DockerComposeProject, error)
 	GetDockerComposeProjectList(projectNamePrefix string) ([]string, error)
+	GetExecConfigByProject(projectName string) (ProjectExecConfig, error)
+	SaveExecConfig(ProjectExecConfigInterface, string) error
 	DeleteProjectByName(name string) error
 }
 
@@ -48,6 +50,10 @@ func (d *DockerComposeManager) GetFileInfoProvider() FileInfoProviderInterface {
 
 func (d *DockerComposeManager) GetConfigFile() ConfigurationInterface {
 	return d.configFile
+}
+
+func (d *DockerComposeManager) DockerComposeExec(files DockerComposeProject, params ProjectExecConfigInterface) error {
+	return d.runCommand("exec", files, []string{params.GetContainerName(), params.GetCommand()})
 }
 
 func (d *DockerComposeManager) DockerComposeUp(files DockerComposeProject) error {
@@ -98,17 +104,14 @@ func (d *DockerComposeManager) LocateFileInDirectory(dir string) (string, error)
 }
 
 func (d *DockerComposeManager) getRunningServicesCount(files DockerComposeProject) (int, int, error) {
-	result, runningError := d.runCommandForResult("ps", files, []string{})
+	bufReader, runningError := d.getRunningServices(files)
 	if runningError != nil {
-		return 0, 0, runningError
+		return 0,0, runningError
 	}
-	bytesReader := bytes.NewReader(result)
-	bufReader := bufio.NewReader(bytesReader)
-	_, _, _ = bufReader.ReadLine()
-	_, _, _ = bufReader.ReadLine()
 	totalCount := 0
 	upCount := 0
-	for true {
+
+	for {
 		lineBytes, _, err := bufReader.ReadLine()
 		if err != nil {
 			break
@@ -129,6 +132,20 @@ func (d *DockerComposeManager) getRunningServicesCount(files DockerComposeProjec
 	}
 
 	return totalCount, upCount, nil
+}
+
+func (d *DockerComposeManager) getRunningServices(files DockerComposeProject) (*bufio.Reader, error) {
+	result, runningError := d.runCommandForResult("ps", files, []string{})
+	if runningError != nil {
+		return nil, runningError
+	}
+
+	bytesReader := bytes.NewReader(result)
+	bufReader := bufio.NewReader(bytesReader)
+	_, _, _ = bufReader.ReadLine()
+	_, _, _ = bufReader.ReadLine()
+
+	return bufReader, nil
 }
 
 func (d *DockerComposeManager) runCommand(command string, files DockerComposeProject, arguments []string) error {

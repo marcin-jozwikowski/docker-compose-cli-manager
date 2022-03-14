@@ -10,6 +10,8 @@ Compile or download a binary file, and place it anywhere in your PATH.
 
 Run `dccm completion --help` and follow instructions displayed for shell autocompletion.
 
+This is required to be performed after each update.
+
 ## Usage
 
 <p align="center">
@@ -34,3 +36,4 @@ All commands can be followed with `--help` for detailed instructions.
 | `dccm down [projectName]` | Runs `docker-compose down --remove-orphans --volumes` command on a project. `[projectName]` defaults to current directory name. |
 | `dccm start [projectName]` | Runs `docker-compose start` command on a project. `[projectName]` defaults to current directory name. |
 | `dccm stop [projectName]` | Runs `docker-compose stop` command on a project. `[projectName]` defaults to current directory name. |
+| `dccm exec [projectName] [container] [command]` | Runs `docker-compose exec container command` command on a project. `[container]` and `[command]` values are persisted and can be later ommited. |
