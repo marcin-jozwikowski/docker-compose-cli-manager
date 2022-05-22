@@ -34,7 +34,7 @@ var argumentGetExecConfigByProject string
 var resultGetExecConfigByProjectConfig docker_compose_manager.ProjectExecConfig
 var resultGetExecConfigByProjectError error
 
-var argumentSaveExecConfigConfig docker_compose_manager.ProjectExecConfigInterface 
+var argumentSaveExecConfigConfig docker_compose_manager.ProjectExecConfigInterface
 var argumentSaveExecConfigString string
 var resultSaveExecConfig error
 
@@ -55,7 +55,7 @@ func (f fakeConfiguration) DeleteProjectByName(name string) error {
 	return resultDeleteProjectByNameError
 }
 
-func (f fakeConfiguration) GetExecConfigByProject(projectName string) (docker_compose_manager.ProjectExecConfig, error){
+func (f fakeConfiguration) GetExecConfigByProject(projectName string) (docker_compose_manager.ProjectExecConfig, error) {
 	argumentGetExecConfigByProject = projectName
 	return resultGetExecConfigByProjectConfig, resultGetExecConfigByProjectError
 }
@@ -111,7 +111,6 @@ var resultDockerComposeStatus docker_compose_manager.DockerComposeFileStatus
 var argumentDockerComposeExec docker_compose_manager.ProjectExecConfigInterface
 var argumentDockerComposeExecFiles docker_compose_manager.DockerComposeProject
 var resultDockerComposeExec error
-
 
 func (f fakeManager) GetConfigFile() docker_compose_manager.ConfigurationInterface {
 	return fakeConfiguration{}
@@ -189,7 +188,7 @@ func setupTest() {
 	resultDockerComposeDown = nil
 	resultDockerComposeStatus = docker_compose_manager.DcfStatusUnknown
 	resultGetExecConfigByProjectError = nil
-	resultGetExecConfigByProjectConfig = docker_compose_manager.InitProjectExecConfig("","")
+	resultGetExecConfigByProjectConfig = docker_compose_manager.InitProjectExecConfig("", "")
 	resultDockerComposeExec = nil
 
 	noArguments = []string{}
@@ -325,6 +324,75 @@ func Test_getDcFilesFromCommandArguments_NoDcFiles(t *testing.T) {
 	}
 }
 
+func Test_guessDcProjectFromCurrentDirectory(t *testing.T) {
+	setupTest()
+	resultGetCurrentDirectory = "aDirectory"
+	resultLocateFileInDirectory = "dockerCompose.yml"
+
+	project, err := guessDcProjectFromCurrentDirectory()
+
+	tests.AssertNil(t, err, "Current directory error")
+	tests.AssertIntEquals(t, len(project), 1, "current directory project count")
+	tests.AssertStringEquals(t, project[0].GetFilename(), resultLocateFileInDirectory, "current directory filename")
+}
+
+func Test_guessDcProjectFromCurrentDirectory_currentDirError(t *testing.T) {
+	setupTest()
+	resultGetCurrentDirectoryError = errors.New("any Error")
+
+	project, err := guessDcProjectFromCurrentDirectory()
+
+	tests.AssertIntEquals(t, 0, len(project), "Current directory project")
+	tests.AssertErrorEquals(t, "any Error", err)
+}
+
+func Test_guessDcProjectFromCurrentDirectory_directoryError(t *testing.T) {
+	setupTest()
+	resultGetCurrentDirectory = "aDirectory"
+	resultLocateFileInDirectoryError = errors.New("dir error")
+
+	project, err := guessDcProjectFromCurrentDirectory()
+
+	tests.AssertIntEquals(t, 0, len(project), "Current directory project")
+	tests.AssertStringEquals(t, argumentLocateFileInDirectoryDir, resultGetCurrentDirectory, "directory passed as current")
+	tests.AssertErrorEquals(t, "dir error", err)
+}
+
+func Test_getDcProjectsFromCommandArguments(t *testing.T) {
+	setupTest()
+	resultGetDockerComposeFilesByProjectError = nil
+	resultGetDockerComposeFilesByProject = docker_compose_manager.DockerComposeProject{
+		docker_compose_manager.InitDockerComposeFile("aFileName"),
+	}
+
+	projects, err := getDcProjectsFromCommandArguments([]string{"projectName"})
+
+	tests.AssertNil(t, err, "Unexpected error")
+
+	if len(projects) != 1 {
+		t.Errorf("Expected projects to have one entry, got %d", len(projects))
+	}
+	tests.AssertStringEquals(t, "aFileName", projects[0][0].GetFilename(), "projectName")
+}
+
+func Test_getDcProjectsFromCommandArguments_noArguments(t *testing.T) {
+	setupTest()
+	resultGetCurrentDirectory = "aDirectory"
+	resultLocateFileInDirectory = "dockerCompose.yml"
+	resultLocateFileInDirectoryError = nil
+	resultGetDockerComposeFilesByProjectError = nil
+	resultGetDockerComposeFilesByProject = docker_compose_manager.DockerComposeProject{}
+
+	projects, err := getDcProjectsFromCommandArguments([]string{})
+
+	tests.AssertNil(t, err, "Unexpected error")
+
+	if len(projects) != 1 {
+		t.Errorf("Expected projects to have one entry, got %d", len(projects))
+	}
+	tests.AssertStringEquals(t, "dockerCompose.yml", projects[0][0].GetFilename(), "projectName")
+}
+
 func Test_projectNamesAutocompletion_arguments(t *testing.T) {
 	setupTest()
 	suggestions, _ := projectNamesAutocompletion(&cobra.Command{}, []string{"any"}, "")
@@ -351,6 +419,30 @@ func Test_projectNamesAutocompletion(t *testing.T) {
 	resultGetDockerComposeProjectListError = nil
 
 	suggestions, _ := projectNamesAutocompletion(&cobra.Command{}, []string{}, "")
+
+	if suggestions == nil {
+		t.Errorf("Expected suggestions. Got nil")
+	}
+
+	if len(suggestions) != 2 {
+		t.Errorf("Invalid suggestions count. Expected %d, got %d", 2, len(suggestions))
+	}
+
+	if suggestions[0] != "project" {
+		t.Errorf("Invalid suggestion. Expected %s, got %s", "project", suggestions[0])
+	}
+
+	if suggestions[1] != "list" {
+		t.Errorf("Invalid suggestion. Expected %s, got %s", "list", suggestions[1])
+	}
+}
+
+func Test_projectNamesMultipleAutocompletion(t *testing.T) {
+	setupTest()
+	resultGetDockerComposeProjectList = []string{"project", "list"}
+	resultGetDockerComposeProjectListError = nil
+
+	suggestions, _ := projectNamesMultipleAutocompletion(&cobra.Command{}, []string{}, "any ")
 
 	if suggestions == nil {
 		t.Errorf("Expected suggestions. Got nil")
