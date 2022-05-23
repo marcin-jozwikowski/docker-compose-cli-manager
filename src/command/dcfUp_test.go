@@ -25,7 +25,7 @@ func TestDcfUpCommand_FilesError(t *testing.T) {
 
 	err := dfcUpCommand.RunE(fakeCommand, oneArgument)
 
-	tests.AssertErrorEquals(t, "files error", err)
+	tests.AssertErrorEquals(t, "no files to execute", err)
 	tests.AssertIntEquals(t, 0, len(argumentDockerComposeUp), "TestDcfUpCommand_FilesError")
 }
 

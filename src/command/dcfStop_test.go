@@ -25,7 +25,7 @@ func TestDcfStopCommand_FilesError(t *testing.T) {
 
 	err := dfcStopCommand.RunE(fakeCommand, oneArgument)
 
-	tests.AssertErrorEquals(t, "files error", err)
+	tests.AssertErrorEquals(t, "no files to execute", err)
 	tests.AssertIntEquals(t, 0, len(argumentDockerComposeStop), "TestDcfStopCommand_FilesError")
 }
 

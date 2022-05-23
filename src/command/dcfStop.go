@@ -8,13 +8,19 @@ var dfcStopCommand = &cobra.Command{
 	Use:   "stop [project-name]",
 	Short: "Stops docker-compose set",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		dcFiles, err := getDcFilesFromCommandArguments(args)
+		dcProjects, err := getDcProjectsFromCommandArguments(args)
 		if err != nil {
 			return err
 		}
-		return manager.DockerComposeStop(dcFiles)
+		for _, aProject := range dcProjects {
+			err = manager.DockerComposeStop(aProject)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
 	},
-	ValidArgsFunction: projectNamesAutocompletion,
+	ValidArgsFunction: projectNamesMultipleAutocompletion,
 }
 
 func init() {

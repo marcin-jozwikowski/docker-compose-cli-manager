@@ -8,13 +8,19 @@ var dfcDownCommand = &cobra.Command{
 	Use:   "down [project-name]",
 	Short: "Removes docker-compose set",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		dcFiles, err := getDcFilesFromCommandArguments(args)
+		dcProjects, err := getDcProjectsFromCommandArguments(args)
 		if err != nil {
 			return err
 		}
-		return manager.DockerComposeDown(dcFiles)
+		for _, aProject := range dcProjects {
+			err = manager.DockerComposeDown(aProject)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
 	},
-	ValidArgsFunction: projectNamesAutocompletion,
+	ValidArgsFunction: projectNamesMultipleAutocompletion,
 }
 
 func init() {
