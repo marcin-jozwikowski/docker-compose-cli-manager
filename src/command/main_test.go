@@ -103,6 +103,8 @@ var argumentDockerComposeUp docker_compose_manager.DockerComposeProject
 var resultDockerComposeUp error
 var argumentDockerComposeStart docker_compose_manager.DockerComposeProject
 var resultDockerComposeStart error
+var argumentDockerComposeRestart docker_compose_manager.DockerComposeProject
+var resultDockerComposeRestart error
 var argumentDockerComposeStop docker_compose_manager.DockerComposeProject
 var resultDockerComposeStop error
 var argumentDockerComposeDown docker_compose_manager.DockerComposeProject
@@ -130,6 +132,11 @@ func (f fakeManager) DockerComposeUp(files docker_compose_manager.DockerComposeP
 func (f fakeManager) DockerComposeStart(files docker_compose_manager.DockerComposeProject) error {
 	argumentDockerComposeStart = files
 	return resultDockerComposeStart
+}
+
+func (f fakeManager) DockerComposeRestart(files docker_compose_manager.DockerComposeProject) error {
+	argumentDockerComposeRestart = files
+	return resultDockerComposeRestart
 }
 
 func (f fakeManager) DockerComposeStop(files docker_compose_manager.DockerComposeProject) error {
@@ -190,6 +197,8 @@ func setupTest() {
 	resultGetExecConfigByProjectError = nil
 	resultGetExecConfigByProjectConfig = docker_compose_manager.InitProjectExecConfig("", "")
 	resultDockerComposeExec = nil
+	argumentDockerComposeRestart = nil
+	resultDockerComposeRestart = nil
 
 	noArguments = []string{}
 	oneArgument = []string{"firstArg"}
