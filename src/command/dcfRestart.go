@@ -4,16 +4,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var dfcDownCommand = &cobra.Command{
-	Use:   "down [project-name]",
-	Short: "Removes docker-compose set",
+var dfcRestartCommand = &cobra.Command{
+	Use:   "restart [project-name]",
+	Short: "Restarts docker-compose set",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		dcProjects, err := getDcProjectsFromCommandArguments(args)
 		if err != nil {
 			return err
 		}
 		for _, aProject := range dcProjects {
-			err = manager.DockerComposeDown(aProject)
+			err = manager.DockerComposeRestart(aProject)
 			if err != nil {
 				return err
 			}
@@ -24,5 +24,5 @@ var dfcDownCommand = &cobra.Command{
 }
 
 func init() {
-	RootCommand.AddCommand(dfcDownCommand)
+	RootCommand.AddCommand(dfcRestartCommand)
 }

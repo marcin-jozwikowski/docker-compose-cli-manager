@@ -29,7 +29,7 @@ var argumentGetExecConfigByProject string
 var resultGetExecConfigByProjectContainer string
 var resultGetExecConfigByProjectCommand string
 
-var argumentSaveExecConfigConfig ProjectExecConfigInterface 
+var argumentSaveExecConfigConfig ProjectExecConfigInterface
 var argumentSaveExecConfigString string
 var resultSaveExecConfig error
 
@@ -54,7 +54,7 @@ func (f fakeConfiguration) DeleteProjectByName(name string) error {
 	return resultDeleteProjectByNameError
 }
 
-func (f fakeConfiguration) GetExecConfigByProject(projectName string) (ProjectExecConfig, error){
+func (f fakeConfiguration) GetExecConfigByProject(projectName string) (ProjectExecConfig, error) {
 	argumentGetExecConfigByProject = projectName
 	return InitProjectExecConfig(resultGetExecConfigByProjectContainer, resultGetExecConfigByProjectCommand), nil
 }
@@ -531,6 +531,27 @@ func TestDockerComposeManager_DockerComposeStop(t *testing.T) {
 	}
 }
 
+func TestDockerComposeManager_DockerComposeRestart(t *testing.T) {
+	dcm, project, _ := createDefaultObjects()
+	resultRunCommandError = nil
+
+	dcm.DockerComposeRestart(project)
+
+	if argumentRunCommandCommand != "docker-compose" {
+		t.Errorf("Invalid command run. Expected %s got %s", "docker-compose", argumentRunCommandCommand)
+	}
+
+	if len(argumentRunCommandArgs) != 5 {
+		t.Errorf("Invalid command run arguments. Expected %d got %d", 5, len(argumentRunCommandArgs))
+	}
+
+	checkFilenamesArguments(t, argumentRunCommandArgs, 0)
+
+	if argumentRunCommandArgs[4] != "restart" {
+		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 5, "stop", argumentRunCommandArgs[4])
+	}
+}
+
 func getCountCommandResults(totalLines int, running int) []byte {
 	result := []byte("   Name               Command           State    Ports\n-------------------------------------------------------")
 	for l := 1; l <= totalLines; l++ {
@@ -601,7 +622,7 @@ func TestDockerComposeManager_DockerComposeExec(t *testing.T) {
 	dcm.DockerComposeExec(project, config)
 
 	tests.AssertStringEquals(t, argumentRunCommandCommand, "docker-compose", "TestDockerComposeManager_DockerComposeExec_command")
-	if (len(argumentRunCommandArgs) != 7) {
+	if len(argumentRunCommandArgs) != 7 {
 		t.Errorf("Invalid TestDockerComposeManager_DockerComposeExec argument count. Expected %d, got %d", 7, len(argumentRunCommandArgs))
 	}
 

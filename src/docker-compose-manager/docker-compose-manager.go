@@ -60,6 +60,10 @@ func (d *DockerComposeManager) DockerComposeUp(files DockerComposeProject) error
 	return d.runCommand("up", files, []string{"-d"})
 }
 
+func (d *DockerComposeManager) DockerComposeRestart(files DockerComposeProject) error {
+	return d.runCommand("restart", files, []string{})
+}
+
 func (d *DockerComposeManager) DockerComposeStart(files DockerComposeProject) error {
 	return d.runCommand("start", files, []string{})
 }
@@ -106,7 +110,7 @@ func (d *DockerComposeManager) LocateFileInDirectory(dir string) (string, error)
 func (d *DockerComposeManager) getRunningServicesCount(files DockerComposeProject) (int, int, error) {
 	bufReader, runningError := d.getRunningServices(files)
 	if runningError != nil {
-		return 0,0, runningError
+		return 0, 0, runningError
 	}
 	totalCount := 0
 	upCount := 0

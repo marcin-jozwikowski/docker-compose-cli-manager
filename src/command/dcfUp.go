@@ -8,13 +8,19 @@ var dfcUpCommand = &cobra.Command{
 	Use:   "up [project-name]",
 	Short: "Creates docker-compose set",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		dcFiles, err := getDcFilesFromCommandArguments(args)
+		dcProjects, err := getDcProjectsFromCommandArguments(args)
 		if err != nil {
 			return err
 		}
-		return manager.DockerComposeUp(dcFiles)
+		for _, aProject := range dcProjects {
+			err = manager.DockerComposeUp(aProject)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
 	},
-	ValidArgsFunction: projectNamesAutocompletion,
+	ValidArgsFunction: projectNamesMultipleAutocompletion,
 }
 
 func init() {
