@@ -108,7 +108,7 @@ func (d *DockerComposeManager) LocateFileInDirectory(dir string) (string, error)
 }
 
 func (d *DockerComposeManager) getRunningServicesCount(files DockerComposeProject) (int, int, error) {
-	bufReader, runningError := d.getRunningServices(files)
+	bufReader, headerMap, runningError := d.getRunningServices(files)
 	if runningError != nil {
 		return 0, 0, runningError
 	}
@@ -120,36 +120,65 @@ func (d *DockerComposeManager) getRunningServicesCount(files DockerComposeProjec
 		if err != nil {
 			break
 		}
-		totalCount++
-		partsRaw := strings.Split(string(lineBytes), "   ")
-		var parts []string
-
-		for _, part := range partsRaw {
-			if len(strings.TrimSpace(part)) > 0 {
-				parts = append(parts, strings.TrimSpace(part))
+		if parts := lineToPartsByHeaderMap(string(lineBytes), headerMap); parts != nil {
+			totalCount++
+			var statusString string
+			if status, exists := parts["status"]; exists {
+				statusString = status // line contains valid status for v2.5.0+
+			} else if status, exists := parts["state"]; exists {
+				statusString = status // line contains valid status for v2.5.0-
 			}
-		}
-
-		if strings.HasPrefix(parts[2], "Up") {
-			upCount++
+			if strings.HasPrefix(statusString, "Up") || strings.HasPrefix(statusString, "running") {
+				upCount++
+			}
 		}
 	}
 
 	return totalCount, upCount, nil
 }
 
-func (d *DockerComposeManager) getRunningServices(files DockerComposeProject) (*bufio.Reader, error) {
+func lineToPartsByHeaderMap(line string, headerMap map[string]int) map[string]string {
+	lineLen := len(line)
+	if strings.Count(line, "-") == lineLen {
+		// prior to v2.5.0 there was a separation line between headers and statuses containing only '-'
+		return nil
+	}
+	result := map[string]string{}
+	for column, index := range headerMap {
+		if index < lineLen {
+			parts := strings.Fields(line[index:])
+			if len(parts) == 0 {
+				result[column] = ""
+			} else {
+				result[column] = parts[0]
+			}
+		}
+	}
+
+	return result
+}
+
+func (d *DockerComposeManager) getRunningServices(files DockerComposeProject) (*bufio.Reader, map[string]int, error) {
 	result, runningError := d.runCommandForResult("ps", files, []string{})
 	if runningError != nil {
-		return nil, runningError
+		return nil, nil, runningError
 	}
 
 	bytesReader := bytes.NewReader(result)
 	bufReader := bufio.NewReader(bytesReader)
-	_, _, _ = bufReader.ReadLine()
-	_, _, _ = bufReader.ReadLine()
+	header, _, _ := bufReader.ReadLine() // first line is always headers
 
-	return bufReader, nil
+	return bufReader, getHeaderMapFromLine(string(header)), nil
+}
+
+func getHeaderMapFromLine(headerString string) map[string]int {
+	headerFields := strings.Fields(headerString)
+	headerMap := map[string]int{}
+	for _, field := range headerFields {
+		headerMap[strings.ToLower(field)] = strings.Index(headerString, field)
+	}
+
+	return headerMap
 }
 
 func (d *DockerComposeManager) runCommand(command string, files DockerComposeProject, arguments []string) error {
