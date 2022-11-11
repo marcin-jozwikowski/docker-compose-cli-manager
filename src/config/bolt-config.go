@@ -34,6 +34,7 @@ func InitializeBoltConfig(path string) (BoltConfigStorage, error) {
 
 var bucketNameProjects = []byte("Projects")
 var bucketNameFiles = []byte("Files")
+var bucketNameSettings = []byte("Settings")
 var bucketKeyFileName = []byte("fileName")
 var bucketNameProjectConfig = []byte("projectConfig")
 var bucketKeyContainerName = []byte("containerName")
@@ -179,6 +180,40 @@ func (c *BoltConfigStorage) DeleteProjectByName(name string) error {
 	return db.Update(func(tx *bolt.Tx) error {
 		projects := tx.Bucket(bucketNameProjects)
 		return projects.DeleteBucket([]byte(name))
+	})
+}
+
+func (c *BoltConfigStorage) GetSettingsEntry(key string) (string, error) {
+	db := c.openDB()
+	defer closeDB(db)
+	var result []byte
+	err := db.View(func(tx *bolt.Tx) error {
+		settings := tx.Bucket(bucketNameSettings)
+		result = settings.Get([]byte(key))
+		if result == nil {
+			return errors.New("key does not exists")
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(result), nil
+}
+
+func (c *BoltConfigStorage) StoreSettingsEntry(key, value string) error {
+	db := c.openDB()
+	defer closeDB(db)
+
+	return db.Update(func(tx *bolt.Tx) error {
+		settings, err := tx.CreateBucketIfNotExists(bucketNameSettings)
+		if err != nil {
+			return err
+		}
+		return settings.Put([]byte(key), []byte(value))
 	})
 }
 

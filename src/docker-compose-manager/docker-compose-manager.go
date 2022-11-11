@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+const (
+	SettingsKey_composeCommand string = "composeCommnad"
+)
+
 type ConfigurationInterface interface {
 	AddDockerComposeFile(file, projectName string) error
 	GetDockerComposeFilesByProject(projectName string) (DockerComposeProject, error)
@@ -15,6 +19,8 @@ type ConfigurationInterface interface {
 	GetExecConfigByProject(projectName string) (ProjectExecConfig, error)
 	SaveExecConfig(ProjectExecConfigInterface, string) error
 	DeleteProjectByName(name string) error
+	GetSettingsEntry(key string) (string, error)
+	StoreSettingsEntry(key, value string) error
 }
 
 type FileInfoProviderInterface interface {
@@ -34,13 +40,15 @@ type DockerComposeManager struct {
 	configFile       ConfigurationInterface
 	commandRunner    commandExecutionerInterface
 	fileInfoProvider FileInfoProviderInterface
+	composeCommand   string
 }
 
-func InitDockerComposeManager(cf ConfigurationInterface, runner commandExecutionerInterface, provider FileInfoProviderInterface) DockerComposeManager {
+func InitDockerComposeManager(cf ConfigurationInterface, runner commandExecutionerInterface, provider FileInfoProviderInterface, composeCommand string) DockerComposeManager {
 	return DockerComposeManager{
 		configFile:       cf,
 		commandRunner:    runner,
 		fileInfoProvider: provider,
+		composeCommand:   composeCommand,
 	}
 }
 
@@ -183,7 +191,7 @@ func getHeaderMapFromLine(headerString string) map[string]int {
 
 func (d *DockerComposeManager) runCommand(command string, commandArguments []string, files DockerComposeProject, arguments []string) error {
 	args := d.generateDockerComposeCommandArgs(command, commandArguments, files, arguments)
-	return d.commandRunner.RunCommand("docker-compose", args)
+	return d.commandRunner.RunCommand(d.composeCommand, args)
 }
 
 func (d *DockerComposeManager) generateDockerComposeCommandArgs(command string, commandArguments []string, files DockerComposeProject, arguments []string) []string {
@@ -197,7 +205,7 @@ func (d *DockerComposeManager) generateDockerComposeCommandArgs(command string, 
 
 func (d *DockerComposeManager) runCommandForResult(command string, commandArguments []string, files DockerComposeProject, arguments []string) ([]byte, error) {
 	args := d.generateDockerComposeCommandArgs(command, commandArguments, files, arguments)
-	return d.commandRunner.RunCommandForResult("docker-compose", args)
+	return d.commandRunner.RunCommandForResult(d.composeCommand, args)
 }
 
 func (d *DockerComposeManager) filesToArgs(files DockerComposeProject) []string {

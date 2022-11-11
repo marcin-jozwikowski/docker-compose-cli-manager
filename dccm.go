@@ -26,7 +26,7 @@ func main() {
 		log.Fatal(cFileError)
 	}
 
-	dockerManager := docker_compose_manager.InitDockerComposeManager(&cFile, commandRunner, fileInfoProvider)
+	dockerManager := docker_compose_manager.InitDockerComposeManager(&cFile, commandRunner, fileInfoProvider, "docker-compose")
 	command.InitCommands(&dockerManager, os.Stdout)
 
 	cmdErr := command.RootCommand.Execute()
