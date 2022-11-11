@@ -39,6 +39,14 @@ var argumentSaveExecConfigConfig docker_compose_manager.ProjectExecConfigInterfa
 var argumentSaveExecConfigString string
 var resultSaveExecConfig error
 
+var argumentGetSettingsEntryKey string
+var resultGetSettingsEntryValue string
+var resultGetSettingsEntryError error
+
+var argumentStoreSettingsEntryKey string
+var argumentStoreSettingsEntryValue string
+var resultStoreSettingsEntryError error
+
 func (f fakeConfiguration) AddDockerComposeFile(file, projectName string) error {
 	return resultAddDockerComposeError
 }
@@ -65,6 +73,17 @@ func (f fakeConfiguration) SaveExecConfig(config docker_compose_manager.ProjectE
 	argumentSaveExecConfigConfig = config
 	argumentSaveExecConfigString = projectName
 	return resultSaveExecConfig
+}
+
+func (f fakeConfiguration) GetSettingsEntry(key string) (string, error) {
+	argumentGetSettingsEntryKey = key
+	return resultGetSettingsEntryValue, resultGetSettingsEntryError
+}
+
+func (f fakeConfiguration) StoreSettingsEntry(key, value string) error {
+	argumentStoreSettingsEntryKey = key
+	argumentStoreSettingsEntryValue = value
+	return resultStoreSettingsEntryError
 }
 
 type fakeFileInfoProvider struct {

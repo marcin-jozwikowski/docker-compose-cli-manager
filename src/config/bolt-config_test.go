@@ -194,18 +194,17 @@ func TestBoltConfigStorage_SaveExecConfig_ForNonExistingProject(t *testing.T) {
 	conn := db.openDB()
 	defer closeDB(conn)
 
-
 	conn.View(func(tx *bolt.Tx) error {
 		projects := tx.Bucket(bucketNameProjects)
 		project := projects.Bucket([]byte("aProjectName"))
 		config := project.Bucket([]byte(bucketNameProjectConfig))
-		
+
 		tests.AssertStringEquals(t, "container", string(config.Get(bucketKeyContainerName)), "Container name string")
 		tests.AssertStringEquals(t, "command", string(config.Get(bucketKeyCommand)), "Command string")
 
 		return nil
 	})
-	
+
 	_ = os.Remove(fileName.Name())
 }
 
@@ -220,18 +219,17 @@ func TestBoltConfigStorage_SaveExecConfig_ForExistingProject(t *testing.T) {
 	conn := db.openDB()
 	defer closeDB(conn)
 
-
 	conn.View(func(tx *bolt.Tx) error {
 		projects := tx.Bucket(bucketNameProjects)
 		project := projects.Bucket([]byte("aProjectName"))
 		config := project.Bucket([]byte(bucketNameProjectConfig))
-		
+
 		tests.AssertStringEquals(t, "container", string(config.Get(bucketKeyContainerName)), "Container name string")
 		tests.AssertStringEquals(t, "command", string(config.Get(bucketKeyCommand)), "Command string")
 
 		return nil
 	})
-	
+
 	_ = os.Remove(fileName.Name())
 }
 
@@ -247,7 +245,6 @@ func TestBoltConfigStorage_GetExecConfigByProjectForEmptyExistingProject(t *test
 	_ = os.Remove(fileName.Name())
 }
 
-
 func TestBoltConfigStorage_GetExecConfigByProject(t *testing.T) {
 	fileName, _ := ioutil.TempFile(os.TempDir(), "db-")
 	db, _ := InitializeBoltConfig(fileName.Name())
@@ -261,6 +258,94 @@ func TestBoltConfigStorage_GetExecConfigByProject(t *testing.T) {
 
 	tests.AssertStringEquals(t, "container", configEntry.GetContainerName(), "container name")
 	tests.AssertStringEquals(t, "command", configEntry.GetCommand(), "command")
+
+	_ = os.Remove(fileName.Name())
+}
+
+func TestBoltConfigStorage_StoreSettingsEntry(t *testing.T) {
+	fileName, _ := ioutil.TempFile(os.TempDir(), "db-")
+	db, _ := InitializeBoltConfig(fileName.Name())
+
+	db.StoreSettingsEntry("anyKey", "anyValue")
+
+	conn := db.openDB()
+	defer closeDB(conn)
+
+	var result []byte
+	conn.View(func(tx *bolt.Tx) error {
+		settings := tx.Bucket(bucketNameSettings)
+		result = settings.Get([]byte("anyKey"))
+
+		tests.AssertStringEquals(t, "anyValue", string(result), "stored settings value")
+
+		return nil
+	})
+
+	_ = os.Remove(fileName.Name())
+}
+func TestBoltConfigStorage_StoreSettingsEntry_changeValue(t *testing.T) {
+	fileName, _ := ioutil.TempFile(os.TempDir(), "db-")
+	db, _ := InitializeBoltConfig(fileName.Name())
+
+	db.StoreSettingsEntry("anyKey", "anyValue")
+	db.StoreSettingsEntry("anyKey", "changedValue")
+
+	conn := db.openDB()
+	defer closeDB(conn)
+
+	var result []byte
+	conn.View(func(tx *bolt.Tx) error {
+		settings := tx.Bucket(bucketNameSettings)
+		result = settings.Get([]byte("anyKey"))
+
+		tests.AssertStringEquals(t, "changedValue", string(result), "stored settings value")
+
+		return nil
+	})
+
+	_ = os.Remove(fileName.Name())
+}
+
+func TestBoltConfigStorage_GetSettingsEntry(t *testing.T) {
+	fileName, _ := ioutil.TempFile(os.TempDir(), "db-")
+	db, _ := InitializeBoltConfig(fileName.Name())
+
+	conn := db.openDB()
+	conn.Update(func(tx *bolt.Tx) error {
+		settings, _ := tx.CreateBucketIfNotExists(bucketNameSettings)
+		return settings.Put([]byte("someKey"), []byte("someValue"))
+	})
+	closeDB(conn)
+
+	result, err := db.GetSettingsEntry("someKey")
+
+	tests.AssertStringEquals(t, "someValue", string(result), "retrieved settings value")
+	tests.AssertNil(t, err, "setting retrieval error")
+
+	_ = os.Remove(fileName.Name())
+}
+
+func TestBoltConfigStorage_GetSettingsEntry_noSettingsTable(t *testing.T) {
+	fileName, _ := ioutil.TempFile(os.TempDir(), "db-")
+	db, _ := InitializeBoltConfig(fileName.Name())
+
+	result, err := db.GetSettingsEntry("someKey")
+
+	tests.AssertStringEquals(t, "", result, "setting retrieval result on wrong key")
+	tests.AssertErrorEquals(t, "key does not exists", err)
+
+	_ = os.Remove(fileName.Name())
+}
+
+func TestBoltConfigStorage_GetSettingsEntry_invalidKey(t *testing.T) {
+	fileName, _ := ioutil.TempFile(os.TempDir(), "db-")
+	db, _ := InitializeBoltConfig(fileName.Name())
+
+	db.StoreSettingsEntry("anyKey", "anyValue")
+	result, err := db.GetSettingsEntry("someKey")
+
+	tests.AssertStringEquals(t, "", result, "setting retrieval result on wrong key")
+	tests.AssertErrorEquals(t, "key does not exists", err)
 
 	_ = os.Remove(fileName.Name())
 }

@@ -64,6 +64,14 @@ func (f fakeConfiguration) SaveExecConfig(config ProjectExecConfigInterface, pro
 	return resultSaveExecConfig
 }
 
+func (f fakeConfiguration) GetSettingsEntry(key string) (string, error) {
+	return "test", nil
+}
+
+func (f fakeConfiguration) StoreSettingsEntry(key, value string) error {
+	return nil
+}
+
 type fakeCommandExecutioner struct {
 }
 
@@ -131,7 +139,7 @@ func (f fakeFileInfoProvider) GetDirectoryName(dir string) string {
 }
 
 func TestInitDockerComposeManager(t *testing.T) {
-	result := InitDockerComposeManager(fakeConfiguration{}, fakeCommandExecutioner{}, fakeFileInfoProvider{})
+	result := InitDockerComposeManager(fakeConfiguration{}, fakeCommandExecutioner{}, fakeFileInfoProvider{}, "docker-compose")
 
 	switch result.GetConfigFile().(type) {
 	case fakeConfiguration:
@@ -472,7 +480,7 @@ func TestDockerComposeManager_DockerComposeRestart(t *testing.T) {
 }
 
 func createDefaultObjects() (DockerComposeManager, DockerComposeProject, []string, string) {
-	dcm := InitDockerComposeManager(fakeConfiguration{}, fakeCommandExecutioner{}, fakeFileInfoProvider{})
+	dcm := InitDockerComposeManager(fakeConfiguration{}, fakeCommandExecutioner{}, fakeFileInfoProvider{}, "docker-compose")
 
 	files := DockerComposeProject{
 		DockerComposeFile{fileName: "aFileName"},

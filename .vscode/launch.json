@@ -35,7 +35,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceRoot}",
-            "args": ["settings-get", "anySetting"]
+            "args": ["settings-get", "anySettinghgjh"]
         },
         {
             "name": "Status",

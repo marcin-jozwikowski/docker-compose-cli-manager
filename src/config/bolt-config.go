@@ -189,6 +189,9 @@ func (c *BoltConfigStorage) GetSettingsEntry(key string) (string, error) {
 	var result []byte
 	err := db.View(func(tx *bolt.Tx) error {
 		settings := tx.Bucket(bucketNameSettings)
+		if settings == nil {
+			return errors.New("key does not exists")
+		}
 		result = settings.Get([]byte(key))
 		if result == nil {
 			return errors.New("key does not exists")
