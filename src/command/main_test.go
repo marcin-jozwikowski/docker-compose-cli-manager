@@ -150,7 +150,7 @@ func (f fakeManager) DockerComposeDown(files docker_compose_manager.DockerCompos
 	return resultDockerComposeDown
 }
 
-func (f fakeManager) DockerComposeStatus(files docker_compose_manager.DockerComposeProject) docker_compose_manager.DockerComposeFileStatus {
+func (f fakeManager) DockerComposeStatus(projectName string) docker_compose_manager.DockerComposeFileStatus {
 	return resultDockerComposeStatus
 }
 
@@ -225,7 +225,7 @@ func Test_getDcFilesFromCommandArguments_NoArguments(t *testing.T) {
 	resultGetCurrentDirectory = "aDirectory"
 	resultLocateFileInDirectory = "dockerCompose.yml"
 	resultLocateFileInDirectoryError = nil
-	project, err := getDcFilesFromCommandArguments([]string{})
+	project, _, err := getDcFilesFromCommandArguments([]string{})
 
 	tests.AssertNil(t, err, "Test_getDcFilesFromCommandArguments_NoArguments")
 
@@ -247,7 +247,7 @@ func Test_getDcFilesFromCommandArguments_NoArguments_DirectoryError(t *testing.T
 	resultGetCurrentDirectory = ""
 	resultGetCurrentDirectoryError = errors.New("A error")
 
-	project, err := getDcFilesFromCommandArguments([]string{})
+	project, _, err := getDcFilesFromCommandArguments([]string{})
 
 	tests.AssertErrorEquals(t, "A error", err)
 	if project != nil {
@@ -262,7 +262,7 @@ func Test_getDcFilesFromCommandArguments_NoArguments_Error(t *testing.T) {
 
 	resultLocateFileInDirectoryError = errors.New("A error")
 
-	project, err := getDcFilesFromCommandArguments([]string{})
+	project, _, err := getDcFilesFromCommandArguments([]string{})
 
 	tests.AssertErrorEquals(t, "A error", err)
 
@@ -277,7 +277,7 @@ func Test_getDcFilesFromCommandArguments_OneArgument(t *testing.T) {
 		docker_compose_manager.InitDockerComposeFile("aFileName"),
 	}
 
-	project, err := getDcFilesFromCommandArguments([]string{"projectName"})
+	project, projectName, err := getDcFilesFromCommandArguments([]string{"projectName"})
 
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err)
@@ -294,6 +294,8 @@ func Test_getDcFilesFromCommandArguments_OneArgument(t *testing.T) {
 	if project[0].GetFilename() != "aFileName" {
 		t.Errorf("Invalid project file name. Expected %s, got %s", "aFileName", project[0].GetFilename())
 	}
+
+	tests.AssertStringEquals(t, "projectName", projectName, "Tested project name")
 }
 
 func Test_getDcFilesFromCommandArguments_OneArgument_Error(t *testing.T) {
@@ -301,7 +303,7 @@ func Test_getDcFilesFromCommandArguments_OneArgument_Error(t *testing.T) {
 	resultGetCurrentDirectoryError = nil
 	resultGetDockerComposeFilesByProjectError = errors.New("A error")
 
-	project, err := getDcFilesFromCommandArguments([]string{"projectName"})
+	project, _, err := getDcFilesFromCommandArguments([]string{"projectName"})
 
 	tests.AssertErrorEquals(t, "A error", err)
 
@@ -312,7 +314,7 @@ func Test_getDcFilesFromCommandArguments_OneArgument_Error(t *testing.T) {
 
 func Test_getDcFilesFromCommandArguments_TwoArguments(t *testing.T) {
 	setupTest()
-	project, err := getDcFilesFromCommandArguments([]string{"projectName", "other"})
+	project, _, err := getDcFilesFromCommandArguments([]string{"projectName", "other"})
 
 	tests.AssertErrorEquals(t, "provide only one project name", err)
 
@@ -326,7 +328,7 @@ func Test_getDcFilesFromCommandArguments_NoDcFiles(t *testing.T) {
 	resultGetDockerComposeFilesByProjectError = nil
 	resultGetDockerComposeFilesByProject = docker_compose_manager.DockerComposeProject{}
 
-	project, err := getDcFilesFromCommandArguments([]string{"projectName"})
+	project, _, err := getDcFilesFromCommandArguments([]string{"projectName"})
 
 	tests.AssertErrorEquals(t, "no files to execute", err)
 	if project != nil {

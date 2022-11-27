@@ -3,9 +3,10 @@ package command
 import (
 	dcm "docker-compose-manager/src/docker-compose-manager"
 	"fmt"
-	"github.com/spf13/cobra"
 	"math"
 	"strings"
+
+	"github.com/spf13/cobra"
 )
 
 var statusCommand = &cobra.Command{
@@ -25,16 +26,12 @@ var statusCommand = &cobra.Command{
 				maxProjectNameLength = int(math.Max(float64(maxProjectNameLength), float64(len(project))))
 			}
 			for _, project := range projectList {
-				projectFiles, err := manager.GetConfigFile().GetDockerComposeFilesByProject(project)
-				if err != nil {
-					return err
-				}
 				fillingSuffix := strings.Repeat(" ", maxProjectNameLength-len(project))
-				_, _ = fmt.Fprintf(mainWriter, "\t %s --> %s \n", project+fillingSuffix, getProjectStatusString(projectFiles))
+				_, _ = fmt.Fprintf(mainWriter, "\t %s --> %s \n", project+fillingSuffix, getProjectStatusString(project))
 			}
 		} else {
-			projectFiles, _ := getDcFilesFromCommandArguments(args)
-			_, _ = fmt.Fprintf(mainWriter, "\t %s \n", getProjectStatusString(projectFiles))
+			_, projectName, _ := getDcFilesFromCommandArguments(args)
+			_, _ = fmt.Fprintf(mainWriter, "\t %s \n", getProjectStatusString(projectName))
 		}
 
 		return nil
@@ -42,8 +39,8 @@ var statusCommand = &cobra.Command{
 	ValidArgsFunction: projectNamesAutocompletion,
 }
 
-func getProjectStatusString(project dcm.DockerComposeProject) string {
-	status := manager.DockerComposeStatus(project)
+func getProjectStatusString(projectName string) string {
+	status := manager.DockerComposeStatus(projectName)
 	switch status {
 	case dcm.DcfStatusNew:
 		return "New"

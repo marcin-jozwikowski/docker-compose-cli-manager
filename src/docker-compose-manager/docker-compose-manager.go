@@ -76,8 +76,8 @@ func (d *DockerComposeManager) DockerComposeDown(files DockerComposeProject) err
 	return d.runCommand("down", []string{}, files, []string{"--remove-orphans", "--volumes"})
 }
 
-func (d *DockerComposeManager) DockerComposeStatus(files DockerComposeProject) DockerComposeFileStatus {
-	total, running, countError := d.getRunningServicesCount(files)
+func (d *DockerComposeManager) DockerComposeStatus(projectName string) DockerComposeFileStatus {
+	total, running, countError := d.getRunningServicesCount(projectName)
 
 	if countError != nil {
 		return DcfStatusUnknown
@@ -107,8 +107,8 @@ func (d *DockerComposeManager) LocateFileInDirectory(dir string) (string, error)
 	return "", fmt.Errorf("file not found")
 }
 
-func (d *DockerComposeManager) getRunningServicesCount(files DockerComposeProject) (int, int, error) {
-	bufReader, headerMap, runningError := d.getRunningServices(files)
+func (d *DockerComposeManager) getRunningServicesCount(projectName string) (int, int, error) {
+	bufReader, headerMap, runningError := d.getRunningServices(projectName)
 	if runningError != nil {
 		return 0, 0, runningError
 	}
@@ -158,8 +158,8 @@ func lineToPartsByHeaderMap(line string, headerMap map[string]int) map[string]st
 	return result
 }
 
-func (d *DockerComposeManager) getRunningServices(files DockerComposeProject) (*bufio.Reader, map[string]int, error) {
-	result, runningError := d.runCommandForResult("ps", files, []string{})
+func (d *DockerComposeManager) getRunningServices(projectName string) (*bufio.Reader, map[string]int, error) {
+	result, runningError := d.runCommandForResult("ps", []string{"-p", projectName}, DockerComposeProject{}, []string{})
 	if runningError != nil {
 		return nil, nil, runningError
 	}
@@ -195,8 +195,8 @@ func (d *DockerComposeManager) generateDockerComposeCommandArgs(command string, 
 	return args
 }
 
-func (d *DockerComposeManager) runCommandForResult(command string, files DockerComposeProject, arguments []string) ([]byte, error) {
-	args := d.generateDockerComposeCommandArgs(command, []string{}, files, arguments)
+func (d *DockerComposeManager) runCommandForResult(command string, commandArguments []string, files DockerComposeProject, arguments []string) ([]byte, error) {
+	args := d.generateDockerComposeCommandArgs(command, commandArguments, files, arguments)
 	return d.commandRunner.RunCommandForResult("docker-compose", args)
 }
 
