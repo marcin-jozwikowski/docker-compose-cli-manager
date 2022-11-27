@@ -2,11 +2,12 @@ package command
 
 import (
 	"bytes"
-	"docker-compose-manager/src/docker-compose-manager"
+	docker_compose_manager "docker-compose-manager/src/docker-compose-manager"
 	"docker-compose-manager/src/tests"
 	"errors"
-	"github.com/spf13/cobra"
 	"testing"
+
+	"github.com/spf13/cobra"
 )
 
 var noArguments []string
@@ -124,7 +125,7 @@ func (f fakeManager) DockerComposeExec(files docker_compose_manager.DockerCompos
 	return resultDockerComposeExec
 }
 
-func (f fakeManager) DockerComposeUp(files docker_compose_manager.DockerComposeProject) error {
+func (f fakeManager) DockerComposeUp(files docker_compose_manager.DockerComposeProject, name string) error {
 	argumentDockerComposeUp = files
 	return resultDockerComposeUp
 }
@@ -338,7 +339,7 @@ func Test_guessDcProjectFromCurrentDirectory(t *testing.T) {
 	resultGetCurrentDirectory = "aDirectory"
 	resultLocateFileInDirectory = "dockerCompose.yml"
 
-	project, err := guessDcProjectFromCurrentDirectory()
+	project, _, err := guessDcProjectFromCurrentDirectory()
 
 	tests.AssertNil(t, err, "Current directory error")
 	tests.AssertIntEquals(t, len(project), 1, "current directory project count")
@@ -349,7 +350,7 @@ func Test_guessDcProjectFromCurrentDirectory_currentDirError(t *testing.T) {
 	setupTest()
 	resultGetCurrentDirectoryError = errors.New("any Error")
 
-	project, err := guessDcProjectFromCurrentDirectory()
+	project, _, err := guessDcProjectFromCurrentDirectory()
 
 	tests.AssertIntEquals(t, 0, len(project), "Current directory project")
 	tests.AssertErrorEquals(t, "any Error", err)
@@ -360,7 +361,7 @@ func Test_guessDcProjectFromCurrentDirectory_directoryError(t *testing.T) {
 	resultGetCurrentDirectory = "aDirectory"
 	resultLocateFileInDirectoryError = errors.New("dir error")
 
-	project, err := guessDcProjectFromCurrentDirectory()
+	project, _, err := guessDcProjectFromCurrentDirectory()
 
 	tests.AssertIntEquals(t, 0, len(project), "Current directory project")
 	tests.AssertStringEquals(t, argumentLocateFileInDirectoryDir, resultGetCurrentDirectory, "directory passed as current")
@@ -381,13 +382,14 @@ func Test_getDcProjectsFromCommandArguments(t *testing.T) {
 	if len(projects) != 1 {
 		t.Errorf("Expected projects to have one entry, got %d", len(projects))
 	}
-	tests.AssertStringEquals(t, "aFileName", projects[0][0].GetFilename(), "projectName")
+	tests.AssertStringEquals(t, "aFileName", projects["projectName"][0].GetFilename(), "projectName")
 }
 
 func Test_getDcProjectsFromCommandArguments_noArguments(t *testing.T) {
 	setupTest()
 	resultGetCurrentDirectory = "aDirectory"
 	resultLocateFileInDirectory = "dockerCompose.yml"
+	resultGetDirectoryName = "directoryName"
 	resultLocateFileInDirectoryError = nil
 	resultGetDockerComposeFilesByProjectError = nil
 	resultGetDockerComposeFilesByProject = docker_compose_manager.DockerComposeProject{}
@@ -399,7 +401,7 @@ func Test_getDcProjectsFromCommandArguments_noArguments(t *testing.T) {
 	if len(projects) != 1 {
 		t.Errorf("Expected projects to have one entry, got %d", len(projects))
 	}
-	tests.AssertStringEquals(t, "dockerCompose.yml", projects[0][0].GetFilename(), "projectName")
+	tests.AssertStringEquals(t, "dockerCompose.yml", projects[resultGetDirectoryName][0].GetFilename(), "projectName")
 }
 
 func Test_projectNamesAutocompletion_arguments(t *testing.T) {

@@ -53,27 +53,27 @@ func (d *DockerComposeManager) GetConfigFile() ConfigurationInterface {
 }
 
 func (d *DockerComposeManager) DockerComposeExec(files DockerComposeProject, params ProjectExecConfigInterface) error {
-	return d.runCommand("exec", files, []string{params.GetContainerName(), params.GetCommand()})
+	return d.runCommand("exec", []string{}, files, []string{params.GetContainerName(), params.GetCommand()})
 }
 
-func (d *DockerComposeManager) DockerComposeUp(files DockerComposeProject) error {
-	return d.runCommand("up", files, []string{"-d"})
+func (d *DockerComposeManager) DockerComposeUp(files DockerComposeProject, name string) error {
+	return d.runCommand("up", []string{"-p", name}, files, []string{"-d"})
 }
 
 func (d *DockerComposeManager) DockerComposeRestart(files DockerComposeProject) error {
-	return d.runCommand("restart", files, []string{})
+	return d.runCommand("restart", []string{}, files, []string{})
 }
 
 func (d *DockerComposeManager) DockerComposeStart(files DockerComposeProject) error {
-	return d.runCommand("start", files, []string{})
+	return d.runCommand("start", []string{}, files, []string{})
 }
 
 func (d *DockerComposeManager) DockerComposeStop(files DockerComposeProject) error {
-	return d.runCommand("stop", files, []string{})
+	return d.runCommand("stop", []string{}, files, []string{})
 }
 
 func (d *DockerComposeManager) DockerComposeDown(files DockerComposeProject) error {
-	return d.runCommand("down", files, []string{"--remove-orphans", "--volumes"})
+	return d.runCommand("down", []string{}, files, []string{"--remove-orphans", "--volumes"})
 }
 
 func (d *DockerComposeManager) DockerComposeStatus(files DockerComposeProject) DockerComposeFileStatus {
@@ -181,13 +181,14 @@ func getHeaderMapFromLine(headerString string) map[string]int {
 	return headerMap
 }
 
-func (d *DockerComposeManager) runCommand(command string, files DockerComposeProject, arguments []string) error {
-	args := d.generateDockerComposeCommandArgs(command, files, arguments)
+func (d *DockerComposeManager) runCommand(command string, commandArguments []string, files DockerComposeProject, arguments []string) error {
+	args := d.generateDockerComposeCommandArgs(command, commandArguments, files, arguments)
 	return d.commandRunner.RunCommand("docker-compose", args)
 }
 
-func (d *DockerComposeManager) generateDockerComposeCommandArgs(command string, files DockerComposeProject, arguments []string) []string {
-	args := d.filesToArgs(files)
+func (d *DockerComposeManager) generateDockerComposeCommandArgs(command string, commandArguments []string, files DockerComposeProject, arguments []string) []string {
+	args := commandArguments
+	args = append(args, d.filesToArgs(files)...)
 	args = append(args, command)
 	args = append(args, arguments...)
 
@@ -195,7 +196,7 @@ func (d *DockerComposeManager) generateDockerComposeCommandArgs(command string, 
 }
 
 func (d *DockerComposeManager) runCommandForResult(command string, files DockerComposeProject, arguments []string) ([]byte, error) {
-	args := d.generateDockerComposeCommandArgs(command, files, arguments)
+	args := d.generateDockerComposeCommandArgs(command, []string{}, files, arguments)
 	return d.commandRunner.RunCommandForResult("docker-compose", args)
 }
 
