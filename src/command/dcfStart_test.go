@@ -14,9 +14,7 @@ func TestDcfStartCommand(t *testing.T) {
 	err := dfcStartCommand.RunE(fakeCommand, oneArgument)
 
 	tests.AssertNil(t, err, "Start command")
-
-	tests.AssertIntEquals(t, 1, len(argumentDockerComposeStart), "TestDcfStartCommand")
-	tests.AssertStringEquals(t, "dcFile.yml", argumentDockerComposeStart[0].GetFilename(), "TestDcfStartCommand")
+	tests.AssertStringEquals(t, "firstArg", argumentDockerComposeStart, "TestDcfStartCommand")
 }
 
 func TestDcfStartCommand_FilesError(t *testing.T) {
@@ -37,5 +35,5 @@ func TestDcfStartCommand_Error(t *testing.T) {
 	err := dfcStartCommand.RunE(fakeCommand, oneArgument)
 
 	tests.AssertErrorEquals(t, "result error", err)
-	tests.AssertIntEquals(t, 1, len(argumentDockerComposeStart), "TestDcfStartCommand_Error")
+	tests.AssertStringEquals(t, "firstArg", argumentDockerComposeStart, "TestDcfStartCommand_ErrorArgument")
 }

@@ -102,7 +102,7 @@ type fakeManager struct {
 
 var argumentDockerComposeUp docker_compose_manager.DockerComposeProject
 var resultDockerComposeUp error
-var argumentDockerComposeStart docker_compose_manager.DockerComposeProject
+var argumentDockerComposeStart string
 var resultDockerComposeStart error
 var argumentDockerComposeRestart docker_compose_manager.DockerComposeProject
 var resultDockerComposeRestart error
@@ -130,8 +130,8 @@ func (f fakeManager) DockerComposeUp(files docker_compose_manager.DockerComposeP
 	return resultDockerComposeUp
 }
 
-func (f fakeManager) DockerComposeStart(files docker_compose_manager.DockerComposeProject) error {
-	argumentDockerComposeStart = files
+func (f fakeManager) DockerComposeStart(projectName string) error {
+	argumentDockerComposeStart = projectName
 	return resultDockerComposeStart
 }
 
@@ -189,7 +189,7 @@ func setupTest() {
 	resultLocateFileInDirectory = ""
 	resultLocateFileInDirectoryError = nil
 	argumentDockerComposeUp = nil
-	argumentDockerComposeStart = nil
+	argumentDockerComposeStart = ""
 	resultDockerComposeStart = nil
 	argumentDockerComposeStop = nil
 	argumentDockerComposeDown = nil

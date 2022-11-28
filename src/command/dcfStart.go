@@ -12,8 +12,8 @@ var dfcStartCommand = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		for _, aProject := range dcProjects {
-			err = manager.DockerComposeStart(aProject)
+		for projectName := range dcProjects {
+			err = manager.DockerComposeStart(projectName)
 			if err != nil {
 				return err
 			}
