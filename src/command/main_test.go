@@ -104,7 +104,7 @@ var argumentDockerComposeUp docker_compose_manager.DockerComposeProject
 var resultDockerComposeUp error
 var argumentDockerComposeStart string
 var resultDockerComposeStart error
-var argumentDockerComposeRestart docker_compose_manager.DockerComposeProject
+var argumentDockerComposeRestart string
 var resultDockerComposeRestart error
 var argumentDockerComposeStop docker_compose_manager.DockerComposeProject
 var resultDockerComposeStop error
@@ -135,8 +135,8 @@ func (f fakeManager) DockerComposeStart(projectName string) error {
 	return resultDockerComposeStart
 }
 
-func (f fakeManager) DockerComposeRestart(files docker_compose_manager.DockerComposeProject) error {
-	argumentDockerComposeRestart = files
+func (f fakeManager) DockerComposeRestart(projectName string) error {
+	argumentDockerComposeRestart = projectName
 	return resultDockerComposeRestart
 }
 
@@ -198,7 +198,7 @@ func setupTest() {
 	resultGetExecConfigByProjectError = nil
 	resultGetExecConfigByProjectConfig = docker_compose_manager.InitProjectExecConfig("", "")
 	resultDockerComposeExec = nil
-	argumentDockerComposeRestart = nil
+	argumentDockerComposeRestart = ""
 	resultDockerComposeRestart = nil
 
 	noArguments = []string{}

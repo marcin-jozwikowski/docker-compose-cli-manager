@@ -13,7 +13,7 @@ type DockerComposeManagerInterface interface {
 	DockerComposeExec(files dcm.DockerComposeProject, params dcm.ProjectExecConfigInterface) error
 	DockerComposeUp(files dcm.DockerComposeProject, name string) error
 	DockerComposeStart(projectName string) error
-	DockerComposeRestart(files dcm.DockerComposeProject) error
+	DockerComposeRestart(projectName string) error
 	DockerComposeStop(files dcm.DockerComposeProject) error
 	DockerComposeDown(files dcm.DockerComposeProject) error
 	DockerComposeStatus(proojectName string) dcm.DockerComposeFileStatus

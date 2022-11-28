@@ -12,8 +12,8 @@ var dfcRestartCommand = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		for _, aProject := range dcProjects {
-			err = manager.DockerComposeRestart(aProject)
+		for projectName := range dcProjects {
+			err = manager.DockerComposeRestart(projectName)
 			if err != nil {
 				return err
 			}

@@ -426,22 +426,22 @@ func TestDockerComposeManager_DockerComposeStop(t *testing.T) {
 }
 
 func TestDockerComposeManager_DockerComposeRestart(t *testing.T) {
-	dcm, project, _, _ := createDefaultObjects()
+	dcm, _, _, projectName := createDefaultObjects()
 	resultRunCommandError = nil
 
-	dcm.DockerComposeRestart(project)
+	dcm.DockerComposeRestart(projectName)
 
 	if argumentRunCommandCommand != "docker-compose" {
 		t.Errorf("Invalid command run. Expected %s got %s", "docker-compose", argumentRunCommandCommand)
 	}
 
-	if len(argumentRunCommandArgs) != 5 {
-		t.Errorf("Invalid command run arguments. Expected %d got %d", 5, len(argumentRunCommandArgs))
+	if len(argumentRunCommandArgs) != 3 {
+		t.Errorf("Invalid command run arguments. Expected %d got %d", 3, len(argumentRunCommandArgs))
 	}
 
-	checkFilenamesArguments(t, argumentRunCommandArgs, 0)
+	checkProjectNameArguments(t, argumentRunCommandArgs, 0)
 
-	if argumentRunCommandArgs[4] != "restart" {
+	if argumentRunCommandArgs[2] != "restart" {
 		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 5, "stop", argumentRunCommandArgs[4])
 	}
 }

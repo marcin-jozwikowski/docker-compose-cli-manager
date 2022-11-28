@@ -60,8 +60,8 @@ func (d *DockerComposeManager) DockerComposeUp(files DockerComposeProject, name 
 	return d.runCommand("up", []string{"-p", name}, files, []string{"-d"})
 }
 
-func (d *DockerComposeManager) DockerComposeRestart(files DockerComposeProject) error {
-	return d.runCommand("restart", []string{}, files, []string{})
+func (d *DockerComposeManager) DockerComposeRestart(projectName string) error {
+	return d.runCommand("restart", []string{"-p", projectName}, DockerComposeProject{}, []string{})
 }
 
 func (d *DockerComposeManager) DockerComposeStart(projectName string) error {
