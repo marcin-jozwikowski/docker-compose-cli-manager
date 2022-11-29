@@ -14,9 +14,7 @@ func TestDcfDownCommand(t *testing.T) {
 	err := dfcDownCommand.RunE(fakeCommand, oneArgument)
 
 	tests.AssertNil(t, err, "Down command")
-
-	tests.AssertIntEquals(t, 1, len(argumentDockerComposeDown), "TestDcfDownCommand")
-	tests.AssertStringEquals(t, "dcFile.yml", argumentDockerComposeDown[0].GetFilename(), "TestDcfDownCommand")
+	tests.AssertStringEquals(t, "firstArg", argumentDockerComposeDown, "TestDcfDownCommand")
 }
 
 func TestDcfDownCommand_FilesError(t *testing.T) {
@@ -37,5 +35,4 @@ func TestDcfDownCommand_Error(t *testing.T) {
 	err := dfcDownCommand.RunE(fakeCommand, oneArgument)
 
 	tests.AssertErrorEquals(t, "result error", err)
-	tests.AssertIntEquals(t, 1, len(argumentDockerComposeDown), "TestDcfDownCommand_Error")
 }

@@ -108,7 +108,7 @@ var argumentDockerComposeRestart string
 var resultDockerComposeRestart error
 var argumentDockerComposeStop string
 var resultDockerComposeStop error
-var argumentDockerComposeDown docker_compose_manager.DockerComposeProject
+var argumentDockerComposeDown string
 var resultDockerComposeDown error
 var resultDockerComposeStatus docker_compose_manager.DockerComposeFileStatus
 var argumentDockerComposeExec docker_compose_manager.ProjectExecConfigInterface
@@ -145,8 +145,8 @@ func (f fakeManager) DockerComposeStop(projectName string) error {
 	return resultDockerComposeStop
 }
 
-func (f fakeManager) DockerComposeDown(files docker_compose_manager.DockerComposeProject) error {
-	argumentDockerComposeDown = files
+func (f fakeManager) DockerComposeDown(projectName string) error {
+	argumentDockerComposeDown = projectName
 	return resultDockerComposeDown
 }
 
@@ -192,7 +192,7 @@ func setupTest() {
 	argumentDockerComposeStart = ""
 	resultDockerComposeStart = nil
 	argumentDockerComposeStop = ""
-	argumentDockerComposeDown = nil
+	argumentDockerComposeDown = ""
 	resultDockerComposeDown = nil
 	resultDockerComposeStatus = docker_compose_manager.DcfStatusUnknown
 	resultGetExecConfigByProjectError = nil
