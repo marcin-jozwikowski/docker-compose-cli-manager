@@ -506,21 +506,19 @@ func checkAllDefaultArguments(t *testing.T, arguments []string) {
 
 func TestDockerComposeManager_DockerComposeExec(t *testing.T) {
 	config := InitProjectExecConfig("containerName", "aCommand")
-	dcm, project, _, _ := createDefaultObjects()
+	dcm, _, _, projectName := createDefaultObjects()
 
 	resultRunCommandError = nil
-	dcm.DockerComposeExec(project, config)
+	dcm.DockerComposeExec(projectName, config)
 
 	tests.AssertStringEquals(t, argumentRunCommandCommand, "docker-compose", "TestDockerComposeManager_DockerComposeExec_command")
-	if len(argumentRunCommandArgs) != 7 {
-		t.Errorf("Invalid TestDockerComposeManager_DockerComposeExec argument count. Expected %d, got %d", 7, len(argumentRunCommandArgs))
+	if len(argumentRunCommandArgs) != 5 {
+		t.Errorf("Invalid TestDockerComposeManager_DockerComposeExec argument count. Expected %d, got %d", 5, len(argumentRunCommandArgs))
 	}
 
-	tests.AssertStringEquals(t, "-f", argumentRunCommandArgs[0], "Argument 0")
-	tests.AssertStringEquals(t, "aFileName", argumentRunCommandArgs[1], "Argument 1")
-	tests.AssertStringEquals(t, "-f", argumentRunCommandArgs[2], "Argument 2")
-	tests.AssertStringEquals(t, "aFileName2", argumentRunCommandArgs[3], "Argument 3")
-	tests.AssertStringEquals(t, "exec", argumentRunCommandArgs[4], "Argument 4")
-	tests.AssertStringEquals(t, "containerName", argumentRunCommandArgs[5], "Argument 5")
-	tests.AssertStringEquals(t, "aCommand", argumentRunCommandArgs[6], "Argument 6")
+	tests.AssertStringEquals(t, "-p", argumentRunCommandArgs[0], "Argument 0")
+	tests.AssertStringEquals(t, "projectName", argumentRunCommandArgs[1], "Argument 1")
+	tests.AssertStringEquals(t, "exec", argumentRunCommandArgs[2], "Argument 2")
+	tests.AssertStringEquals(t, "containerName", argumentRunCommandArgs[3], "Argument 3")
+	tests.AssertStringEquals(t, "aCommand", argumentRunCommandArgs[4], "Argument 4")
 }

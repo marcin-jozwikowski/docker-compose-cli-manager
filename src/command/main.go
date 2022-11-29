@@ -10,7 +10,7 @@ import (
 
 type DockerComposeManagerInterface interface {
 	GetConfigFile() dcm.ConfigurationInterface
-	DockerComposeExec(files dcm.DockerComposeProject, params dcm.ProjectExecConfigInterface) error
+	DockerComposeExec(projectName string, params dcm.ProjectExecConfigInterface) error
 	DockerComposeUp(files dcm.DockerComposeProject, name string) error
 	DockerComposeStart(projectName string) error
 	DockerComposeRestart(projectName string) error

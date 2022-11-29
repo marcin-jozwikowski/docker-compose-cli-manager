@@ -112,16 +112,16 @@ var argumentDockerComposeDown string
 var resultDockerComposeDown error
 var resultDockerComposeStatus docker_compose_manager.DockerComposeFileStatus
 var argumentDockerComposeExec docker_compose_manager.ProjectExecConfigInterface
-var argumentDockerComposeExecFiles docker_compose_manager.DockerComposeProject
+var argumentDockerComposeExecFiles string
 var resultDockerComposeExec error
 
 func (f fakeManager) GetConfigFile() docker_compose_manager.ConfigurationInterface {
 	return fakeConfiguration{}
 }
 
-func (f fakeManager) DockerComposeExec(files docker_compose_manager.DockerComposeProject, params docker_compose_manager.ProjectExecConfigInterface) error {
+func (f fakeManager) DockerComposeExec(projectName string, params docker_compose_manager.ProjectExecConfigInterface) error {
 	argumentDockerComposeExec = params
-	argumentDockerComposeExecFiles = files
+	argumentDockerComposeExecFiles = projectName
 	return resultDockerComposeExec
 }
 

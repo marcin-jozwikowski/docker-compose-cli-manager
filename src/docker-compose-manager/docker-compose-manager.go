@@ -52,8 +52,8 @@ func (d *DockerComposeManager) GetConfigFile() ConfigurationInterface {
 	return d.configFile
 }
 
-func (d *DockerComposeManager) DockerComposeExec(files DockerComposeProject, params ProjectExecConfigInterface) error {
-	return d.runCommand("exec", []string{}, files, []string{params.GetContainerName(), params.GetCommand()})
+func (d *DockerComposeManager) DockerComposeExec(projectName string, params ProjectExecConfigInterface) error {
+	return d.runCommand("exec", []string{"-p", projectName}, DockerComposeProject{}, []string{params.GetContainerName(), params.GetCommand()})
 }
 
 func (d *DockerComposeManager) DockerComposeUp(files DockerComposeProject, name string) error {
