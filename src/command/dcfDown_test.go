@@ -36,3 +36,16 @@ func TestDcfDownCommand_Error(t *testing.T) {
 
 	tests.AssertErrorEquals(t, "result error", err)
 }
+
+func TestDcDownCommand_DefaultOptions(t *testing.T) {
+	setupTest()
+	resultGetDockerComposeFilesByProject = docker_compose_manager.DockerComposeProject{docker_compose_manager.InitDockerComposeFile("dcFile.yml")}
+
+	err := dfcDownCommand.RunE(fakeCommand, oneArgument)
+
+	tests.AssertNil(t, err, "Down command")
+	tests.AssertStringEquals(t, "firstArg", argumentDockerComposeDown, "TestDcfDownCommand")
+	tests.AssertIntEquals(t, 2, len(argumentDockerComposeDownAdditonal), "TestDcfDownCommand__additionalArguments_len")
+	tests.AssertStringEquals(t, "--remove-orphans", argumentDockerComposeDownAdditonal[0], "TestDcfDownCommand__additionalArguments_1")
+	tests.AssertStringEquals(t, "--volumes", argumentDockerComposeDownAdditonal[1], "TestDcfDownCommand__additionalArguments_2")
+}

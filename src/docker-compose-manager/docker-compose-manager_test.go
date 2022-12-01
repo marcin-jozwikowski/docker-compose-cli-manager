@@ -345,7 +345,7 @@ func TestDockerComposeManager_DockerComposeDown(t *testing.T) {
 	dcm, _, _, projectName := createDefaultObjects()
 	resultRunCommandError = nil
 
-	mainErr := dcm.DockerComposeDown(projectName)
+	mainErr := dcm.DockerComposeDown(projectName, []string{"--remove-orphans", "--volumes"})
 
 	if mainErr != nil {
 		t.Errorf("Unecpected error: %s", mainErr)
@@ -362,7 +362,7 @@ func TestDockerComposeManager_DockerComposeDown(t *testing.T) {
 	checkProjectNameArguments(t, argumentRunCommandArgs, 0)
 
 	if argumentRunCommandArgs[2] != "down" {
-		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 3, "up", argumentRunCommandArgs[2])
+		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 3, "down", argumentRunCommandArgs[2])
 	}
 	if argumentRunCommandArgs[3] != "--remove-orphans" {
 		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 4, "--remove-orphans", argumentRunCommandArgs[3])
@@ -372,11 +372,36 @@ func TestDockerComposeManager_DockerComposeDown(t *testing.T) {
 	}
 }
 
+func TestDockerComposeManager_DockerComposeDown_noAdditionalArguments(t *testing.T) {
+	dcm, _, _, projectName := createDefaultObjects()
+	resultRunCommandError = nil
+
+	mainErr := dcm.DockerComposeDown(projectName, []string{})
+
+	if mainErr != nil {
+		t.Errorf("Unecpected error: %s", mainErr)
+	}
+
+	if argumentRunCommandCommand != "docker-compose" {
+		t.Errorf("Invalid command run. Expected %s got %s", "docker-compose", argumentRunCommandCommand)
+	}
+
+	if len(argumentRunCommandArgs) != 3 {
+		t.Errorf("Invalid command run arguments. Expected %d got %d", 3, len(argumentRunCommandArgs))
+	}
+
+	checkProjectNameArguments(t, argumentRunCommandArgs, 0)
+
+	if argumentRunCommandArgs[2] != "down" {
+		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 3, "down", argumentRunCommandArgs[2])
+	}
+}
+
 func TestDockerComposeManager_DockerComposeDown_error(t *testing.T) {
 	dcm, _, _, projectName := createDefaultObjects()
 	resultRunCommandError = errors.New("down error")
 
-	mainErr := dcm.DockerComposeDown(projectName)
+	mainErr := dcm.DockerComposeDown(projectName, []string{})
 
 	if mainErr.Error() != "down error" {
 		t.Errorf("Unecpected error. Expected %s, got %s", "down error", mainErr)

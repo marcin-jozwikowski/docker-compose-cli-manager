@@ -20,6 +20,14 @@
             "mode": "auto",
             "program": "${workspaceRoot}",
             "args": ["status"]
+        },
+        {
+            "name": "Down",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceRoot}",
+            "args": ["down", "docker-compose-cli-manager", "--additional"]
         }
     ]
 }

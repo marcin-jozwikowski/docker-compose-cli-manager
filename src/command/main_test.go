@@ -109,6 +109,7 @@ var resultDockerComposeRestart error
 var argumentDockerComposeStop string
 var resultDockerComposeStop error
 var argumentDockerComposeDown string
+var argumentDockerComposeDownAdditonal []string
 var resultDockerComposeDown error
 var resultDockerComposeStatus docker_compose_manager.DockerComposeFileStatus
 var argumentDockerComposeExec docker_compose_manager.ProjectExecConfigInterface
@@ -145,8 +146,9 @@ func (f fakeManager) DockerComposeStop(projectName string) error {
 	return resultDockerComposeStop
 }
 
-func (f fakeManager) DockerComposeDown(projectName string) error {
+func (f fakeManager) DockerComposeDown(projectName string, additionalArguments []string) error {
 	argumentDockerComposeDown = projectName
+	argumentDockerComposeDownAdditonal = additionalArguments
 	return resultDockerComposeDown
 }
 

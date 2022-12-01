@@ -15,7 +15,7 @@ type DockerComposeManagerInterface interface {
 	DockerComposeStart(projectName string) error
 	DockerComposeRestart(projectName string) error
 	DockerComposeStop(projectName string) error
-	DockerComposeDown(projectName string) error
+	DockerComposeDown(projectName string, additionalArguments []string) error
 	DockerComposeStatus(proojectName string) dcm.DockerComposeFileStatus
 	LocateFileInDirectory(dir string) (string, error)
 	GetFileInfoProvider() dcm.FileInfoProviderInterface
@@ -131,4 +131,24 @@ func getAutocompletion(cmd *cobra.Command, args []string, toComplete string) ([]
 	}
 
 	return projects, cobra.ShellCompDirectiveNoFileComp
+}
+
+func getNonProjectArguments(arguments []string, projects map[string]dcm.DockerComposeProject) []string {
+	diffStr := []string{}
+	m := map[string]int{}
+
+	for _, s1Val := range arguments {
+		m[s1Val] = 1
+	}
+	for s2Val := range projects {
+		m[s2Val] = m[s2Val] + 1
+	}
+
+	for mKey, mVal := range m {
+		if mVal == 1 {
+			diffStr = append(diffStr, mKey)
+		}
+	}
+
+	return diffStr
 }
