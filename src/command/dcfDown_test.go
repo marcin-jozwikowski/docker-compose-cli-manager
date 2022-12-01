@@ -14,9 +14,7 @@ func TestDcfDownCommand(t *testing.T) {
 	err := dfcDownCommand.RunE(fakeCommand, oneArgument)
 
 	tests.AssertNil(t, err, "Down command")
-
-	tests.AssertIntEquals(t, 1, len(argumentDockerComposeDown), "TestDcfDownCommand")
-	tests.AssertStringEquals(t, "dcFile.yml", argumentDockerComposeDown[0].GetFilename(), "TestDcfDownCommand")
+	tests.AssertStringEquals(t, "firstArg", argumentDockerComposeDown, "TestDcfDownCommand")
 }
 
 func TestDcfDownCommand_FilesError(t *testing.T) {
@@ -37,5 +35,17 @@ func TestDcfDownCommand_Error(t *testing.T) {
 	err := dfcDownCommand.RunE(fakeCommand, oneArgument)
 
 	tests.AssertErrorEquals(t, "result error", err)
-	tests.AssertIntEquals(t, 1, len(argumentDockerComposeDown), "TestDcfDownCommand_Error")
+}
+
+func TestDcDownCommand_DefaultOptions(t *testing.T) {
+	setupTest()
+	resultGetDockerComposeFilesByProject = docker_compose_manager.DockerComposeProject{docker_compose_manager.InitDockerComposeFile("dcFile.yml")}
+
+	err := dfcDownCommand.RunE(fakeCommand, oneArgument)
+
+	tests.AssertNil(t, err, "Down command")
+	tests.AssertStringEquals(t, "firstArg", argumentDockerComposeDown, "TestDcfDownCommand")
+	tests.AssertIntEquals(t, 2, len(argumentDockerComposeDownAdditonal), "TestDcfDownCommand__additionalArguments_len")
+	tests.AssertStringEquals(t, "--remove-orphans", argumentDockerComposeDownAdditonal[0], "TestDcfDownCommand__additionalArguments_1")
+	tests.AssertStringEquals(t, "--volumes", argumentDockerComposeDownAdditonal[1], "TestDcfDownCommand__additionalArguments_2")
 }

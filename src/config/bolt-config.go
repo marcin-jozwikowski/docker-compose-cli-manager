@@ -83,6 +83,9 @@ func (c *BoltConfigStorage) GetDockerComposeFilesByProject(projectName string) (
 	err := db.View(func(tx *bolt.Tx) error {
 		projects := tx.Bucket(bucketNameProjects)
 		project := projects.Bucket([]byte(projectName))
+		if project == nil { // project not found
+			return bolt.ErrBucketNotFound
+		}
 		files := project.Bucket(bucketNameFiles)
 		c := files.Cursor()
 

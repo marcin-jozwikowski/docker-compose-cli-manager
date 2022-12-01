@@ -8,24 +8,23 @@ import (
 )
 
 func TestStatus_getProjectStatusString(t *testing.T) {
-	project := docker_compose_manager.DockerComposeProject{
-		docker_compose_manager.InitDockerComposeFile("file"),
-	}
+	setupTest()
+	projectName := "Project"
 
 	resultDockerComposeStatus = docker_compose_manager.DcfStatusNew
-	tests.AssertStringEquals(t, "New", getProjectStatusString(project), "projectStatus New")
+	tests.AssertStringEquals(t, "New", getProjectStatusString(projectName), "projectStatus New")
 
 	resultDockerComposeStatus = docker_compose_manager.DcfStatusRunning
-	tests.AssertStringEquals(t, "Running", getProjectStatusString(project), "projectStatus Running")
+	tests.AssertStringEquals(t, "Running", getProjectStatusString(projectName), "projectStatus Running")
 
 	resultDockerComposeStatus = docker_compose_manager.DcfStatusMixed
-	tests.AssertStringEquals(t, "Partially running", getProjectStatusString(project), "projectStatus Partially running")
+	tests.AssertStringEquals(t, "Partially running", getProjectStatusString(projectName), "projectStatus Partially running")
 
 	resultDockerComposeStatus = docker_compose_manager.DcfStatusStopped
-	tests.AssertStringEquals(t, "Stopped", getProjectStatusString(project), "projectStatus Stopped")
+	tests.AssertStringEquals(t, "Stopped", getProjectStatusString(projectName), "projectStatus Stopped")
 
 	resultDockerComposeStatus = docker_compose_manager.DcfStatusUnknown
-	tests.AssertStringEquals(t, "Unknown", getProjectStatusString(project), "projectStatus Unknown")
+	tests.AssertStringEquals(t, "Unknown", getProjectStatusString(projectName), "projectStatus Unknown")
 }
 
 func TestStatus_projectListError(t *testing.T) {
@@ -35,16 +34,6 @@ func TestStatus_projectListError(t *testing.T) {
 	err := statusCommand.RunE(fakeCommand, noArguments)
 
 	tests.AssertErrorEquals(t, "list error", err)
-}
-
-func TestStatus_projectError(t *testing.T) {
-	setupTest()
-	resultGetDockerComposeProjectList = []string{"projectOne"}
-	resultGetDockerComposeFilesByProjectError = errors.New("project error")
-
-	err := statusCommand.RunE(fakeCommand, noArguments)
-
-	tests.AssertErrorEquals(t, "project error", err)
 }
 
 func TestStatus(t *testing.T) {

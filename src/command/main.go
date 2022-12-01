@@ -3,19 +3,20 @@ package command
 import (
 	dcm "docker-compose-manager/src/docker-compose-manager"
 	"errors"
-	"github.com/spf13/cobra"
 	"io"
+
+	"github.com/spf13/cobra"
 )
 
 type DockerComposeManagerInterface interface {
 	GetConfigFile() dcm.ConfigurationInterface
-	DockerComposeExec(files dcm.DockerComposeProject, params dcm.ProjectExecConfigInterface) error
-	DockerComposeUp(files dcm.DockerComposeProject) error
-	DockerComposeStart(files dcm.DockerComposeProject) error
-	DockerComposeRestart(files dcm.DockerComposeProject) error
-	DockerComposeStop(files dcm.DockerComposeProject) error
-	DockerComposeDown(files dcm.DockerComposeProject) error
-	DockerComposeStatus(files dcm.DockerComposeProject) dcm.DockerComposeFileStatus
+	DockerComposeExec(projectName string, params dcm.ProjectExecConfigInterface) error
+	DockerComposeUp(files dcm.DockerComposeProject, name string) error
+	DockerComposeStart(projectName string) error
+	DockerComposeRestart(projectName string) error
+	DockerComposeStop(projectName string) error
+	DockerComposeDown(projectName string, additionalArguments []string) error
+	DockerComposeStatus(proojectName string) dcm.DockerComposeFileStatus
 	LocateFileInDirectory(dir string) (string, error)
 	GetFileInfoProvider() dcm.FileInfoProviderInterface
 }
@@ -28,19 +29,20 @@ func InitCommands(managerInstance DockerComposeManagerInterface, writer io.Write
 	mainWriter = writer
 }
 
-func getDcProjectsFromCommandArguments(args []string) ([]dcm.DockerComposeProject, error) {
+func getDcProjectsFromCommandArguments(args []string) (map[string]dcm.DockerComposeProject, error) {
 	var dcProject dcm.DockerComposeProject
-	var dcProjects []dcm.DockerComposeProject
+	var projectName string
 	var err error
+	dcProjects := map[string]dcm.DockerComposeProject{}
 
 	if len(args) == 0 {
-		dcProject, err = guessDcProjectFromCurrentDirectory()
-		dcProjects = append(dcProjects, dcProject)
+		dcProject, projectName, _ = guessDcProjectFromCurrentDirectory()
+		dcProjects[projectName] = dcProject
 	} else {
 		for _, argument := range args {
 			dcProject, err = manager.GetConfigFile().GetDockerComposeFilesByProject(argument)
 			if err == nil {
-				dcProjects = append(dcProjects, dcProject)
+				dcProjects[argument] = dcProject
 			}
 		}
 	}
@@ -52,18 +54,20 @@ func getDcProjectsFromCommandArguments(args []string) ([]dcm.DockerComposeProjec
 	return dcProjects, nil
 }
 
-func getDcFilesFromCommandArguments(args []string) (dcm.DockerComposeProject, error) {
+func getDcFilesFromCommandArguments(args []string) (dcm.DockerComposeProject, string, error) {
 	var dcFiles dcm.DockerComposeProject
+	var projectName string
 
 	switch len(args) {
 	case 0:
 		currDir, cdErr := manager.GetFileInfoProvider().GetCurrentDirectory()
 		if cdErr != nil {
-			return nil, cdErr
+			return nil, "", cdErr
 		}
+		projectName = currDir
 		dcFilePath, err := manager.LocateFileInDirectory(currDir)
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
 		dcmFile := dcm.InitDockerComposeFile(dcFilePath)
 		dcFiles = append(dcFiles, dcmFile)
@@ -73,35 +77,38 @@ func getDcFilesFromCommandArguments(args []string) (dcm.DockerComposeProject, er
 		var err error
 		dcFiles, err = manager.GetConfigFile().GetDockerComposeFilesByProject(args[0])
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
+		projectName = args[0]
 		break
 
 	default:
-		return nil, errors.New("provide only one project name")
+		return nil, "", errors.New("provide only one project name")
 	}
 
 	if len(dcFiles) == 0 {
-		return nil, errors.New("no files to execute")
+		return nil, "", errors.New("no files to execute")
 	}
 
-	return dcFiles, nil
+	return dcFiles, projectName, nil
 }
 
-func guessDcProjectFromCurrentDirectory() (dcm.DockerComposeProject, error) {
+func guessDcProjectFromCurrentDirectory() (dcm.DockerComposeProject, string, error) {
 	var dcFiles dcm.DockerComposeProject
 
 	currDir, cdErr := manager.GetFileInfoProvider().GetCurrentDirectory()
 	if cdErr != nil {
-		return nil, cdErr
+		return nil, "", cdErr
 	}
 	dcFilePath, err := manager.LocateFileInDirectory(currDir)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	dcmFile := dcm.InitDockerComposeFile(dcFilePath)
 
-	return append(dcFiles, dcmFile), nil
+	projectName := manager.GetFileInfoProvider().GetDirectoryName(currDir)
+
+	return append(dcFiles, dcmFile), projectName, nil
 }
 
 func projectNamesAutocompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
@@ -124,4 +131,24 @@ func getAutocompletion(cmd *cobra.Command, args []string, toComplete string) ([]
 	}
 
 	return projects, cobra.ShellCompDirectiveNoFileComp
+}
+
+func getNonProjectArguments(arguments []string, projects map[string]dcm.DockerComposeProject) []string {
+	diffStr := []string{}
+	m := map[string]int{}
+
+	for _, s1Val := range arguments {
+		m[s1Val] = 1
+	}
+	for s2Val := range projects {
+		m[s2Val] = m[s2Val] + 1
+	}
+
+	for mKey, mVal := range m {
+		if mVal == 1 {
+			diffStr = append(diffStr, mKey)
+		}
+	}
+
+	return diffStr
 }

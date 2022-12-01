@@ -14,9 +14,7 @@ func TestDcfRestartCommand(t *testing.T) {
 	err := dfcRestartCommand.RunE(fakeCommand, oneArgument)
 
 	tests.AssertNil(t, err, "Start command")
-
-	tests.AssertIntEquals(t, 1, len(argumentDockerComposeRestart), "TestDcfRestartCommand")
-	tests.AssertStringEquals(t, "dcFile.yml", argumentDockerComposeRestart[0].GetFilename(), "TestDcfRestartCommand")
+	tests.AssertStringEquals(t, "firstArg", argumentDockerComposeRestart, "TestDcfRestartCommand")
 }
 
 func TestDcfRestartCommand_FilesError(t *testing.T) {
@@ -37,5 +35,4 @@ func TestDcfRestartCommand_Error(t *testing.T) {
 	err := dfcRestartCommand.RunE(fakeCommand, oneArgument)
 
 	tests.AssertErrorEquals(t, "result error", err)
-	tests.AssertIntEquals(t, 1, len(argumentDockerComposeRestart), "TestDcfRestartCommand_Error")
 }

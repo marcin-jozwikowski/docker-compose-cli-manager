@@ -56,8 +56,7 @@ func TestDcfExecCommand_OneArgument_Success(t *testing.T) {
 	tests.AssertNil(t, err, "DCF exec - success error")
 	tests.AssertStringEquals(t, "container", argumentDockerComposeExec.GetContainerName(), "DCF exec - container name passed")
 	tests.AssertStringEquals(t, "command", argumentDockerComposeExec.GetCommand(), "DCF exec - command name passed")
-	tests.AssertIntEquals(t, 1, len(argumentDockerComposeExecFiles), "DCF exec - files passed")
-	tests.AssertStringEquals(t, "dcFile.yml", argumentDockerComposeExecFiles[0].GetFilename(), "DCF exec - passed file name")
+	tests.AssertStringEquals(t, "firstArg", argumentDockerComposeExecFiles, "DCF exec - passed file name")
 }
 
 func TestDcfExecCommand_TwoArguments(t *testing.T) {

@@ -14,9 +14,7 @@ func TestDcfStopCommand(t *testing.T) {
 	err := dfcStopCommand.RunE(fakeCommand, oneArgument)
 
 	tests.AssertNil(t, err, "Stop command")
-
-	tests.AssertIntEquals(t, 1, len(argumentDockerComposeStop), "TestDcfStopCommand")
-	tests.AssertStringEquals(t, "dcFile.yml", argumentDockerComposeStop[0].GetFilename(), "TestDcfStopCommand")
+	tests.AssertStringEquals(t, "firstArg", argumentDockerComposeStop, "TestDcfStopCommand")
 }
 
 func TestDcfStopCommand_FilesError(t *testing.T) {
@@ -26,7 +24,6 @@ func TestDcfStopCommand_FilesError(t *testing.T) {
 	err := dfcStopCommand.RunE(fakeCommand, oneArgument)
 
 	tests.AssertErrorEquals(t, "no files to execute", err)
-	tests.AssertIntEquals(t, 0, len(argumentDockerComposeStop), "TestDcfStopCommand_FilesError")
 }
 
 func TestDcfStopCommand_Error(t *testing.T) {
@@ -37,5 +34,4 @@ func TestDcfStopCommand_Error(t *testing.T) {
 	err := dfcStopCommand.RunE(fakeCommand, oneArgument)
 
 	tests.AssertErrorEquals(t, "result error", err)
-	tests.AssertIntEquals(t, 1, len(argumentDockerComposeStop), "TestDcfStopCommand_Error")
 }

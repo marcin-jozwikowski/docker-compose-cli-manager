@@ -149,7 +149,7 @@ func TestInitDockerComposeManager(t *testing.T) {
 }
 
 func TestDockerComposeManager_filesToArguments(t *testing.T) {
-	dcm, files, _ := createDefaultObjects()
+	dcm, files, _, _ := createDefaultObjects()
 
 	arguments := dcm.filesToArgs(files)
 
@@ -161,19 +161,46 @@ func TestDockerComposeManager_filesToArguments(t *testing.T) {
 }
 
 func TestDockerComposeManager_generateCommandArgs(t *testing.T) {
-	dcm, files, args := createDefaultObjects()
+	dcm, files, args, _ := createDefaultObjects()
 
-	arguments := dcm.generateDockerComposeCommandArgs("aCommand", files, args)
+	arguments := dcm.generateDockerComposeCommandArgs("aCommand", []string{}, files, args)
 
 	checkAllDefaultArguments(t, arguments)
 }
 
+func TestDockerComposeManager_generateCommandArgs__additionalCommandArgument(t *testing.T) {
+	dcm, files, args, _ := createDefaultObjects()
+
+	arguments := dcm.generateDockerComposeCommandArgs("aCommand", []string{"cmdArgument"}, files, args)
+
+	if len(arguments) != 8 {
+		t.Errorf("Expected %d arguments to be created, got %d", 8, len(arguments))
+	}
+
+	if arguments[0] != "cmdArgument" {
+		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 5, "cmdArgument", arguments[0])
+	}
+
+	checkFilenamesArguments(t, arguments, 1)
+
+	if arguments[5] != "aCommand" {
+		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 5, "aCommand", arguments[5])
+	}
+
+	if arguments[6] != "arg1" {
+		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 6, "arg1", arguments[6])
+	}
+	if arguments[7] != "arg2" {
+		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 7, "arg2", arguments[7])
+	}
+}
+
 func TestDockerComposeManager_runCommand(t *testing.T) {
-	dcm, files, args := createDefaultObjects()
+	dcm, files, args, _ := createDefaultObjects()
 
 	resultRunCommandError = nil
 
-	resultError := dcm.runCommand("aCommand", files, args)
+	resultError := dcm.runCommand("aCommand", []string{}, files, args)
 
 	if resultError != nil {
 		t.Errorf("Unexpected error: %s", resultError)
@@ -187,11 +214,11 @@ func TestDockerComposeManager_runCommand(t *testing.T) {
 }
 
 func TestDockerComposeManager_runCommandError(t *testing.T) {
-	dcm, files, args := createDefaultObjects()
+	dcm, files, args, _ := createDefaultObjects()
 
 	resultRunCommandError = errors.New("A error")
 
-	resultError := dcm.runCommand("aCommand", files, args)
+	resultError := dcm.runCommand("aCommand", []string{}, files, args)
 
 	if resultError == nil {
 		t.Error("Expected error, got nil")
@@ -209,11 +236,11 @@ func TestDockerComposeManager_runCommandError(t *testing.T) {
 }
 
 func TestDockerComposeManager_runCommandForResult(t *testing.T) {
-	dcm, files, args := createDefaultObjects()
+	dcm, files, args, _ := createDefaultObjects()
 	resultRunCommandForResult = []byte("a result")
 	resultRunCommandForResultError = nil
 
-	resultBytes, resultError := dcm.runCommandForResult("aCommand", files, args)
+	resultBytes, resultError := dcm.runCommandForResult("aCommand", []string{}, files, args)
 
 	if resultError != nil {
 		t.Errorf("Unexpected error: %s", resultError)
@@ -230,11 +257,11 @@ func TestDockerComposeManager_runCommandForResult(t *testing.T) {
 }
 
 func TestDockerComposeManager_runCommandForResultError(t *testing.T) {
-	dcm, files, args := createDefaultObjects()
+	dcm, files, args, _ := createDefaultObjects()
 	resultRunCommandForResult = nil
 	resultRunCommandForResultError = errors.New("error")
 
-	resultBytes, resultError := dcm.runCommandForResult("aCommand", files, args)
+	resultBytes, resultError := dcm.runCommandForResult("aCommand", []string{}, files, args)
 
 	if resultError == nil {
 		t.Error("Expected error, got nil")
@@ -255,7 +282,7 @@ func TestDockerComposeManager_runCommandForResultError(t *testing.T) {
 }
 
 func TestDockerComposeManager_LocateFileInDirectory(t *testing.T) {
-	dcm, _, _ := createDefaultObjects()
+	dcm, _, _, _ := createDefaultObjects()
 	resultIsFile = true
 
 	file, fileError := dcm.LocateFileInDirectory("anyDirectory")
@@ -270,7 +297,7 @@ func TestDockerComposeManager_LocateFileInDirectory(t *testing.T) {
 }
 
 func TestDockerComposeManager_LocateFileInDirectory_FileNotFound(t *testing.T) {
-	dcm, _, _ := createDefaultObjects()
+	dcm, _, _, _ := createDefaultObjects()
 	resultIsFile = false
 
 	file, fileError := dcm.LocateFileInDirectory("anyDirectory")
@@ -289,34 +316,36 @@ func TestDockerComposeManager_LocateFileInDirectory_FileNotFound(t *testing.T) {
 }
 
 func TestDockerComposeManager_DockerComposeUp(t *testing.T) {
-	dcm, project, _ := createDefaultObjects()
+	dcm, project, _, _ := createDefaultObjects()
 	resultRunCommandError = nil
+	projectName := "projectName"
 
-	dcm.DockerComposeUp(project)
+	dcm.DockerComposeUp(project, projectName)
 
 	if argumentRunCommandCommand != "docker-compose" {
 		t.Errorf("Invalid command run. Expected %s got %s", "docker-compose", argumentRunCommandCommand)
 	}
 
-	if len(argumentRunCommandArgs) != 6 {
-		t.Errorf("Invalid command run arguments. Expected %d got %d", 6, len(argumentRunCommandArgs))
+	if len(argumentRunCommandArgs) != 8 {
+		t.Errorf("Invalid command run arguments. Expected %d got %d", 8, len(argumentRunCommandArgs))
 	}
 
-	checkFilenamesArguments(t, argumentRunCommandArgs, 0)
+	checkProjectNameArguments(t, argumentRunCommandArgs, 0)
+	checkFilenamesArguments(t, argumentRunCommandArgs, 2)
 
-	if argumentRunCommandArgs[4] != "up" {
-		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 5, "up", argumentRunCommandArgs[4])
+	if argumentRunCommandArgs[6] != "up" {
+		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 5, "up", argumentRunCommandArgs[6])
 	}
-	if argumentRunCommandArgs[5] != "-d" {
-		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 6, "-d", argumentRunCommandArgs[5])
+	if argumentRunCommandArgs[7] != "-d" {
+		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 6, "-d", argumentRunCommandArgs[7])
 	}
 }
 
 func TestDockerComposeManager_DockerComposeDown(t *testing.T) {
-	dcm, project, _ := createDefaultObjects()
+	dcm, _, _, projectName := createDefaultObjects()
 	resultRunCommandError = nil
 
-	mainErr := dcm.DockerComposeDown(project)
+	mainErr := dcm.DockerComposeDown(projectName, []string{"--remove-orphans", "--volumes"})
 
 	if mainErr != nil {
 		t.Errorf("Unecpected error: %s", mainErr)
@@ -326,28 +355,53 @@ func TestDockerComposeManager_DockerComposeDown(t *testing.T) {
 		t.Errorf("Invalid command run. Expected %s got %s", "docker-compose", argumentRunCommandCommand)
 	}
 
-	if len(argumentRunCommandArgs) != 7 {
-		t.Errorf("Invalid command run arguments. Expected %d got %d", 7, len(argumentRunCommandArgs))
+	if len(argumentRunCommandArgs) != 5 {
+		t.Errorf("Invalid command run arguments. Expected %d got %d", 5, len(argumentRunCommandArgs))
 	}
 
-	checkFilenamesArguments(t, argumentRunCommandArgs, 0)
+	checkProjectNameArguments(t, argumentRunCommandArgs, 0)
 
-	if argumentRunCommandArgs[4] != "down" {
-		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 5, "up", argumentRunCommandArgs[4])
+	if argumentRunCommandArgs[2] != "down" {
+		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 3, "down", argumentRunCommandArgs[2])
 	}
-	if argumentRunCommandArgs[5] != "--remove-orphans" {
-		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 6, "--remove-orphans", argumentRunCommandArgs[5])
+	if argumentRunCommandArgs[3] != "--remove-orphans" {
+		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 4, "--remove-orphans", argumentRunCommandArgs[3])
 	}
-	if argumentRunCommandArgs[6] != "--volumes" {
-		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 7, "--volumes", argumentRunCommandArgs[6])
+	if argumentRunCommandArgs[4] != "--volumes" {
+		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 5, "--volumes", argumentRunCommandArgs[4])
+	}
+}
+
+func TestDockerComposeManager_DockerComposeDown_noAdditionalArguments(t *testing.T) {
+	dcm, _, _, projectName := createDefaultObjects()
+	resultRunCommandError = nil
+
+	mainErr := dcm.DockerComposeDown(projectName, []string{})
+
+	if mainErr != nil {
+		t.Errorf("Unecpected error: %s", mainErr)
+	}
+
+	if argumentRunCommandCommand != "docker-compose" {
+		t.Errorf("Invalid command run. Expected %s got %s", "docker-compose", argumentRunCommandCommand)
+	}
+
+	if len(argumentRunCommandArgs) != 3 {
+		t.Errorf("Invalid command run arguments. Expected %d got %d", 3, len(argumentRunCommandArgs))
+	}
+
+	checkProjectNameArguments(t, argumentRunCommandArgs, 0)
+
+	if argumentRunCommandArgs[2] != "down" {
+		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 3, "down", argumentRunCommandArgs[2])
 	}
 }
 
 func TestDockerComposeManager_DockerComposeDown_error(t *testing.T) {
-	dcm, project, _ := createDefaultObjects()
+	dcm, _, _, projectName := createDefaultObjects()
 	resultRunCommandError = errors.New("down error")
 
-	mainErr := dcm.DockerComposeDown(project)
+	mainErr := dcm.DockerComposeDown(projectName, []string{})
 
 	if mainErr.Error() != "down error" {
 		t.Errorf("Unecpected error. Expected %s, got %s", "down error", mainErr)
@@ -355,69 +409,69 @@ func TestDockerComposeManager_DockerComposeDown_error(t *testing.T) {
 }
 
 func TestDockerComposeManager_DockerComposeStart(t *testing.T) {
-	dcm, project, _ := createDefaultObjects()
+	dcm, _, _, projectName := createDefaultObjects()
 	resultRunCommandError = nil
 
-	dcm.DockerComposeStart(project)
+	dcm.DockerComposeStart(projectName)
 
 	if argumentRunCommandCommand != "docker-compose" {
 		t.Errorf("Invalid command run. Expected %s got %s", "docker-compose", argumentRunCommandCommand)
 	}
 
-	if len(argumentRunCommandArgs) != 5 {
-		t.Errorf("Invalid command run arguments. Expected %d got %d", 5, len(argumentRunCommandArgs))
+	if len(argumentRunCommandArgs) != 3 {
+		t.Errorf("Invalid command run arguments. Expected %d got %d", 2, len(argumentRunCommandArgs))
 	}
 
-	checkFilenamesArguments(t, argumentRunCommandArgs, 0)
+	checkProjectNameArguments(t, argumentRunCommandArgs, 0)
 
-	if argumentRunCommandArgs[4] != "start" {
-		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 5, "start", argumentRunCommandArgs[4])
+	if argumentRunCommandArgs[2] != "start" {
+		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 2, "start", argumentRunCommandArgs[2])
 	}
 }
 
 func TestDockerComposeManager_DockerComposeStop(t *testing.T) {
-	dcm, project, _ := createDefaultObjects()
+	dcm, _, _, projectName := createDefaultObjects()
 	resultRunCommandError = nil
 
-	dcm.DockerComposeStop(project)
+	dcm.DockerComposeStop(projectName)
 
 	if argumentRunCommandCommand != "docker-compose" {
 		t.Errorf("Invalid command run. Expected %s got %s", "docker-compose", argumentRunCommandCommand)
 	}
 
-	if len(argumentRunCommandArgs) != 5 {
-		t.Errorf("Invalid command run arguments. Expected %d got %d", 5, len(argumentRunCommandArgs))
+	if len(argumentRunCommandArgs) != 3 {
+		t.Errorf("Invalid command run arguments. Expected %d got %d", 3, len(argumentRunCommandArgs))
 	}
 
-	checkFilenamesArguments(t, argumentRunCommandArgs, 0)
+	checkProjectNameArguments(t, argumentRunCommandArgs, 0)
 
-	if argumentRunCommandArgs[4] != "stop" {
-		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 5, "stop", argumentRunCommandArgs[4])
+	if argumentRunCommandArgs[2] != "stop" {
+		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 2, "stop", argumentRunCommandArgs[2])
 	}
 }
 
 func TestDockerComposeManager_DockerComposeRestart(t *testing.T) {
-	dcm, project, _ := createDefaultObjects()
+	dcm, _, _, projectName := createDefaultObjects()
 	resultRunCommandError = nil
 
-	dcm.DockerComposeRestart(project)
+	dcm.DockerComposeRestart(projectName)
 
 	if argumentRunCommandCommand != "docker-compose" {
 		t.Errorf("Invalid command run. Expected %s got %s", "docker-compose", argumentRunCommandCommand)
 	}
 
-	if len(argumentRunCommandArgs) != 5 {
-		t.Errorf("Invalid command run arguments. Expected %d got %d", 5, len(argumentRunCommandArgs))
+	if len(argumentRunCommandArgs) != 3 {
+		t.Errorf("Invalid command run arguments. Expected %d got %d", 3, len(argumentRunCommandArgs))
 	}
 
-	checkFilenamesArguments(t, argumentRunCommandArgs, 0)
+	checkProjectNameArguments(t, argumentRunCommandArgs, 0)
 
-	if argumentRunCommandArgs[4] != "restart" {
+	if argumentRunCommandArgs[2] != "restart" {
 		t.Errorf("Invalid argument no. %d. Expected %s, got %s", 5, "stop", argumentRunCommandArgs[4])
 	}
 }
 
-func createDefaultObjects() (DockerComposeManager, DockerComposeProject, []string) {
+func createDefaultObjects() (DockerComposeManager, DockerComposeProject, []string, string) {
 	dcm := InitDockerComposeManager(fakeConfiguration{}, fakeCommandExecutioner{}, fakeFileInfoProvider{})
 
 	files := DockerComposeProject{
@@ -427,7 +481,18 @@ func createDefaultObjects() (DockerComposeManager, DockerComposeProject, []strin
 
 	arguments := []string{"arg1", "arg2"}
 
-	return dcm, files, arguments
+	projectName := "projectName"
+
+	return dcm, files, arguments, projectName
+}
+
+func checkProjectNameArguments(t *testing.T, arguments []string, firstIndex int) {
+	if arguments[firstIndex] != "-p" {
+		t.Errorf("Invalid argument no. %d. Expected %s, got %s", firstIndex+1, "-p", arguments[firstIndex])
+	}
+	if arguments[firstIndex+1] != "projectName" {
+		t.Errorf("Invalid argument no. %d. Expected %s, got %s", firstIndex+2, "projectName", arguments[firstIndex+1])
+	}
 }
 
 func checkFilenamesArguments(t *testing.T, arguments []string, firstIndex int) {
@@ -466,21 +531,19 @@ func checkAllDefaultArguments(t *testing.T, arguments []string) {
 
 func TestDockerComposeManager_DockerComposeExec(t *testing.T) {
 	config := InitProjectExecConfig("containerName", "aCommand")
-	dcm, project, _ := createDefaultObjects()
+	dcm, _, _, projectName := createDefaultObjects()
 
 	resultRunCommandError = nil
-	dcm.DockerComposeExec(project, config)
+	dcm.DockerComposeExec(projectName, config)
 
 	tests.AssertStringEquals(t, argumentRunCommandCommand, "docker-compose", "TestDockerComposeManager_DockerComposeExec_command")
-	if len(argumentRunCommandArgs) != 7 {
-		t.Errorf("Invalid TestDockerComposeManager_DockerComposeExec argument count. Expected %d, got %d", 7, len(argumentRunCommandArgs))
+	if len(argumentRunCommandArgs) != 5 {
+		t.Errorf("Invalid TestDockerComposeManager_DockerComposeExec argument count. Expected %d, got %d", 5, len(argumentRunCommandArgs))
 	}
 
-	tests.AssertStringEquals(t, "-f", argumentRunCommandArgs[0], "Argument 0")
-	tests.AssertStringEquals(t, "aFileName", argumentRunCommandArgs[1], "Argument 1")
-	tests.AssertStringEquals(t, "-f", argumentRunCommandArgs[2], "Argument 2")
-	tests.AssertStringEquals(t, "aFileName2", argumentRunCommandArgs[3], "Argument 3")
-	tests.AssertStringEquals(t, "exec", argumentRunCommandArgs[4], "Argument 4")
-	tests.AssertStringEquals(t, "containerName", argumentRunCommandArgs[5], "Argument 5")
-	tests.AssertStringEquals(t, "aCommand", argumentRunCommandArgs[6], "Argument 6")
+	tests.AssertStringEquals(t, "-p", argumentRunCommandArgs[0], "Argument 0")
+	tests.AssertStringEquals(t, "projectName", argumentRunCommandArgs[1], "Argument 1")
+	tests.AssertStringEquals(t, "exec", argumentRunCommandArgs[2], "Argument 2")
+	tests.AssertStringEquals(t, "containerName", argumentRunCommandArgs[3], "Argument 3")
+	tests.AssertStringEquals(t, "aCommand", argumentRunCommandArgs[4], "Argument 4")
 }

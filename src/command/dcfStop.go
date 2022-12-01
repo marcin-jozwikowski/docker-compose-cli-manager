@@ -12,8 +12,8 @@ var dfcStopCommand = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		for _, aProject := range dcProjects {
-			err = manager.DockerComposeStop(aProject)
+		for projectName := range dcProjects {
+			err = manager.DockerComposeStop(projectName)
 			if err != nil {
 				return err
 			}

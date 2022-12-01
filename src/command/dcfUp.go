@@ -12,8 +12,8 @@ var dfcUpCommand = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		for _, aProject := range dcProjects {
-			err = manager.DockerComposeUp(aProject)
+		for projectName, aProject := range dcProjects {
+			err = manager.DockerComposeUp(aProject, projectName)
 			if err != nil {
 				return err
 			}
